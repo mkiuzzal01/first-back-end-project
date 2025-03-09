@@ -53,6 +53,12 @@ const StudentSchema = new Schema<TStudent>(
       type: UserNameSchema,
       required: true,
     },
+    user: {
+      type: Schema.Types.ObjectId,
+      unique: true,
+      required: [true, 'user id must be required'],
+      ref: 'User',
+    },
     password: { type: String, required: true },
     gender: {
       type: String,
@@ -92,11 +98,6 @@ const StudentSchema = new Schema<TStudent>(
       required: true,
     },
     profileImage: { type: String },
-    isActive: {
-      type: String,
-      enum: ['active', 'inactive'],
-      default: 'active',
-    },
     isDeleted: {
       type: Boolean,
       default: false,

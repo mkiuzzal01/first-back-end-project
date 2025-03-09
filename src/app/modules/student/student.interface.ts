@@ -1,4 +1,4 @@
-import { Model } from "mongoose";
+import { Model, Types } from 'mongoose';
 
 export type TGuardian = {
   fatherName: string;
@@ -25,26 +25,26 @@ export type TLocalGuardian = {
 
 export type TStudent = {
   id: string;
+  // for reference
+  user: Types.ObjectId;
   name: TUserName;
   password: string;
   gender: 'male' | 'female' | 'other';
   dateOfBirth: string;
   email: string;
   contactNo: string;
-  emergencyContactNo:string;
+  emergencyContactNo: string;
   bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB-' | 'AB+' | 'O+' | 'O-';
   presentAddress: string;
   permanentAddress: string;
   guardian: TGuardian;
   localGuardian: TLocalGuardian;
   profileImage?: string;
-  isActive: 'active' | 'inactive';
   isDeleted: boolean;
 };
 
 export type StudentMethod = {
-  isUserExist(id:string):Promise<TStudent | null>;
+  isUserExist(id: string): Promise<TStudent | null>;
 };
 
 export type StudentModel = Model<TStudent, {}, StudentMethod>;
-
