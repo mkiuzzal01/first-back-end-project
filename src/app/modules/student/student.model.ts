@@ -41,6 +41,7 @@ const GuardianSchema = new Schema({
 const LocalGuardianSchema = new Schema({
   name: { type: String, required: true },
   relationShip: { type: String, required: true },
+  occupation: { type: String, require: true },
   contactNo: { type: String, required: true },
   address: { type: String, required: true },
 });
@@ -86,7 +87,7 @@ const StudentSchema = new Schema<TStudent>(
       type: GuardianSchema,
       required: true,
     },
-    localGuardians: {
+    localGuardian: {
       type: LocalGuardianSchema,
       required: true,
     },

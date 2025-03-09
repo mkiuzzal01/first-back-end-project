@@ -6,6 +6,7 @@ const createStudentIntoDB = async (studentData: TStudent) => {
   // return result;
 
   const student = new Student(studentData);
+
   if (await student.isUserExist(studentData.id)) {
     throw new Error('Student already exist');
   }
@@ -24,6 +25,20 @@ const getSingleStudentFromDB = async (id: string) => {
   return result;
 };
 
+const updateSingleStudentFromDB = async (id: string, updateData: TStudent) => {
+  if ('_id' in updateData) {
+    delete updateData._id;
+  }
+
+  const result = await Student.findOneAndUpdate(
+    { id: id },
+    { $set: updateData },
+    { new: true, runValidators: true },
+  );
+
+  return result;
+};
+
 const deleteStudentFromDB = async (id: string) => {
   const result = await Student.updateOne({ id }, { isDeleted: true });
   return result;
@@ -34,4 +49,5 @@ export const StudentServices = {
   getAllStudentFromDB,
   getSingleStudentFromDB,
   deleteStudentFromDB,
+  updateSingleStudentFromDB,
 };

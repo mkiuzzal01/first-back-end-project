@@ -43,7 +43,7 @@ const studentValidationSchema = z.object({
   presentAddress: z.string(),
   permanentAddress: z.string(),
   guardian: guardianSchema,
-  localGuardians: localGuardianSchema,
+  localGuardian: localGuardianSchema,
   profileImage: z.string().optional(),
   isActive: z.enum(['active', 'inactive']).default('active'),
   isDeleted:z.boolean().default(false),

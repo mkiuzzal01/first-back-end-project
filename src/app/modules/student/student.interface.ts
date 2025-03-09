@@ -36,7 +36,7 @@ export type TStudent = {
   presentAddress: string;
   permanentAddress: string;
   guardian: TGuardian;
-  localGuardians: TLocalGuardian;
+  localGuardian: TLocalGuardian;
   profileImage?: string;
   isActive: 'active' | 'inactive';
   isDeleted: boolean;
