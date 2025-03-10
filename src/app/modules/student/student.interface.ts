@@ -28,9 +28,8 @@ export type TStudent = {
   // for reference
   user: Types.ObjectId;
   name: TUserName;
-  password: string;
   gender: 'male' | 'female' | 'other';
-  dateOfBirth: string;
+  dateOfBirth: Date;
   email: string;
   contactNo: string;
   emergencyContactNo: string;
@@ -40,7 +39,6 @@ export type TStudent = {
   guardian: TGuardian;
   localGuardian: TLocalGuardian;
   profileImage?: string;
-  isDeleted: boolean;
 };
 
 export type StudentMethod = {

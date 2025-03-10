@@ -47,4 +47,4 @@ const studentValidationSchema = Joi.object({
   isActive: Joi.string().valid('active', 'inactive').default('active'),
 });
 
-export { studentValidationSchema };
+// export { studentValidationSchema };

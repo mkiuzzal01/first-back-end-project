@@ -1,8 +1,6 @@
 import { Schema, model } from 'mongoose';
 import validator from 'validator';
-import bcrypt from 'bcrypt';
 import { StudentModel, TStudent, TUserName } from './student.interface';
-import config from '../../config';
 
 const UserNameSchema = new Schema<TUserName>({
   firstName: {
@@ -48,7 +46,6 @@ const LocalGuardianSchema = new Schema({
 
 const StudentSchema = new Schema<TStudent>(
   {
-    id: { type: String, unique: true, required: true },
     name: {
       type: UserNameSchema,
       required: true,
@@ -59,7 +56,6 @@ const StudentSchema = new Schema<TStudent>(
       required: [true, 'user id must be required'],
       ref: 'User',
     },
-    password: { type: String, required: true },
     gender: {
       type: String,
       enum: {
@@ -68,7 +64,7 @@ const StudentSchema = new Schema<TStudent>(
       },
       required: true,
     },
-    dateOfBirth: { type: String, required: true },
+    dateOfBirth: { type: Date, required: true },
     email: {
       type: String,
       unique: true,
@@ -98,10 +94,6 @@ const StudentSchema = new Schema<TStudent>(
       required: true,
     },
     profileImage: { type: String },
-    isDeleted: {
-      type: Boolean,
-      default: false,
-    },
   },
   {
     toJSON: {
@@ -113,21 +105,6 @@ const StudentSchema = new Schema<TStudent>(
 // virtual
 StudentSchema.virtual('fullName').get(function () {
   return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
-});
-
-// middleware:
-StudentSchema.pre('save', async function (next) {
-  const user = this;
-  user.password = await bcrypt.hash(
-    user.password,
-    Number(config.bcrypt_salt_round),
-  );
-  next();
-});
-
-StudentSchema.post('save', function (doc, next) {
-  doc.password = '';
-  next();
 });
 
 // query middleware
