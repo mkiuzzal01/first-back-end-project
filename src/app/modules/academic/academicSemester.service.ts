@@ -20,8 +20,21 @@ const getSingleAcademicFromDB = async (year: string) => {
   return result;
 };
 
+const updateSingleAcademicDocumentIntoDB = async (
+  year: string,
+  doc: TAcademicSemester,
+) => {
+  const result = await AcademicSemester.findOneAndUpdate(
+    { year },
+    { $set: doc },
+    { new: true, runValidators: true },
+  );
+  return result;
+};
+
 export const AcademicSemesterService = {
   createAcademicSemesterIntoDB,
   getSingleAcademicFromDB,
   getAllAcademicSemestersFromDB,
+  updateSingleAcademicDocumentIntoDB,
 };

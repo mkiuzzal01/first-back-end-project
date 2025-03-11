@@ -16,4 +16,6 @@ router.post(
   AcademicSemesterControllers.createAcademicSemester,
 );
 
+router.patch('/:year', AcademicSemesterControllers.updateAcademicSemester);
+
 export const academicSemesterRoutes = router;

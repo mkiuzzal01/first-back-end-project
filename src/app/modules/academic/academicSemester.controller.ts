@@ -39,8 +39,25 @@ const findAllAcademicSemester: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
+const updateAcademicSemester: RequestHandler = catchAsync(async (req, res) => {
+  const { year } = req.params;
+  const updateData = req.body;
+  const result =
+    await AcademicSemesterService.updateSingleAcademicDocumentIntoDB(
+      year,
+      updateData,
+    );
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Academic semester updated successfully',
+    data: result,
+  });
+});
+
 export const AcademicSemesterControllers = {
   createAcademicSemester,
   findSingleAcademicSemester,
-  findAllAcademicSemester
+  findAllAcademicSemester,
+  updateAcademicSemester,
 };
