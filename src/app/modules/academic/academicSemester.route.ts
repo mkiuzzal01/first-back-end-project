@@ -6,6 +6,10 @@ import academicValidationSchema from './academicSemester.validation';
 const router = express.Router();
 
 // all routes
+router.get('/', AcademicSemesterControllers.findAllAcademicSemester);
+
+router.get('/:year', AcademicSemesterControllers.findSingleAcademicSemester);
+
 router.post(
   '/create-academic-semester',
   validationRequest(academicValidationSchema),
