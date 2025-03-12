@@ -7,6 +7,11 @@ const getAllAcademicSemestersFromDB = async () => {
   return result;
 };
 
+const getSingleAcademicFromDB = async (year: string) => {
+  const result = await AcademicSemester.find({ year });
+  return result;
+};
+
 const createAcademicSemesterIntoDB = async (payload: TAcademicSemester) => {
   if (academicSemesterMapper[payload.name] !== payload.code) {
     throw new Error('Invalid Academic Semester Code');
@@ -15,15 +20,13 @@ const createAcademicSemesterIntoDB = async (payload: TAcademicSemester) => {
   return result;
 };
 
-const getSingleAcademicFromDB = async (year: string) => {
-  const result = await AcademicSemester.find({ year });
-  return result;
-};
-
 const updateSingleAcademicDocumentIntoDB = async (
   year: string,
   doc: TAcademicSemester,
 ) => {
+  if (academicSemesterMapper[doc.name] !== doc.code) {
+    throw new Error('Invalid Academic Semester Code');
+  }
   const result = await AcademicSemester.findOneAndUpdate(
     { year },
     { $set: doc },
