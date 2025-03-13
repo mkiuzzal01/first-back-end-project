@@ -1,4 +1,4 @@
-import { TAcademicSemester } from '../academicSemester/academicSemester.interface';
+import { TAcademicSemester } from '../academic-semester/academicSemester.interface';
 import { User } from './user.model';
 
 // Find the last student

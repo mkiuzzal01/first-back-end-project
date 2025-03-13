@@ -54,7 +54,7 @@ const StudentSchema = new Schema<TStudent>(
     user: {
       type: Schema.Types.ObjectId,
       unique: true,
-      required: [true, 'user id must be required'],
+      required: [true, 'User id must be required'],
       ref: 'User',
     },
     name: {
@@ -99,10 +99,18 @@ const StudentSchema = new Schema<TStudent>(
       required: true,
     },
     profileImage: { type: String },
+    academicDepartment: {
+      type: Schema.ObjectId,
+      required: [true, 'Academic department required'],
+      ref: 'AcademicDepartment',
+    },
     admissionSemester: {
       type: Schema.Types.ObjectId,
-      ref: 'AcademicSemester',
+      unique: true,
+      required: [true, 'Admission semester required'],
+      ref: 'Academic',
     },
+    isDeleted: { type:Boolean, default: false },
   },
   {
     toJSON: {

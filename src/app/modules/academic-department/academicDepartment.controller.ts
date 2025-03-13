@@ -19,9 +19,8 @@ const createDepartment: RequestHandler = catchAsync(async (req, res) => {
 const updateDepartment: RequestHandler = catchAsync(async (req, res) => {
   const { departmentId } = req.params;
   const department = req.body;
-
-  const result =
-    await AcademicDepartmentService.updateSingleAcademicDepartmentIntoDB(
+  
+  const result = await AcademicDepartmentService.updateSingleAcademicDepartmentIntoDB(
       departmentId,
       department,
     );

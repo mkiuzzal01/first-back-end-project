@@ -8,23 +8,28 @@ const createAcademicDepartmentIntoDB = async (payload: TAcademicDepartment) => {
 
 const updateSingleAcademicDepartmentIntoDB = async (
   departmentId: string,
-  payload: TAcademicDepartment,
+  payload: Partial<TAcademicDepartment>,
 ) => {
-  const result = await AcademicDepartment.findByIdAndUpdate(
-    departmentId,
+
+  const result = await AcademicDepartment.findOneAndUpdate(
+    { _id: departmentId },
     payload,
     { new: true },
   );
+
+  console.log(result);
+
   return result;
 };
 
 const getSingleAcademicFromDB = async (departmentId: string) => {
-  const result = await AcademicDepartment.findById(departmentId);
+  const result =
+    await AcademicDepartment.findById(departmentId).populate('academicFaculty');
   return result;
 };
 
 const getAllAcademicDepartmentsFromDB = async () => {
-  const result = await AcademicDepartment.find();
+  const result = await AcademicDepartment.find().populate('academicFaculty');
   return result;
 };
 
@@ -34,3 +39,5 @@ export const AcademicDepartmentService = {
   getSingleAcademicFromDB,
   getAllAcademicDepartmentsFromDB,
 };
+
+//populate for finding reference data:

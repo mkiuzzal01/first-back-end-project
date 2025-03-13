@@ -9,7 +9,7 @@ const getAllStudents: RequestHandler = catchAsync(async (req, res) => {
   const result = await StudentServices.getAllStudentFromDB();
   res.status(200).json({
     success: true,
-    message: 'all students retrieve successfully',
+    message: 'All students retrieve successfully',
     data: result,
   });
 });
@@ -19,7 +19,7 @@ const getSingleStudent: RequestHandler = catchAsync(async (req, res) => {
   const result = await StudentServices.getSingleStudentFromDB(studentId);
   res.status(200).json({
     success: true,
-    message: 'student retrieve successfully',
+    message: 'Student retrieve successfully',
     data: result,
   });
 });

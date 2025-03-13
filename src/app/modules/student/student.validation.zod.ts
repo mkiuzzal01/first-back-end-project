@@ -47,6 +47,7 @@ export const studentValidationSchema = z.object({
       localGuardian: localGuardianSchema,
       profileImage: z.string().optional(),
       admissionSemester: z.string(),
+      isDeleted: z.boolean(),
     }),
   }),
 });

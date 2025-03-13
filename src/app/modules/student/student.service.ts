@@ -1,15 +1,30 @@
+import path from 'path';
 import { TStudent } from './student.interface';
 import { Student } from './student.model';
 
-
 const getAllStudentFromDB = async () => {
-  const result = await Student.find();
+  const result = await Student.find()
+    .populate('user')
+    .populate('admissionSemester')
+    .populate({
+      path: 'academicDepartment',
+      populate: {
+        path: 'academicFaculty',
+      },
+    });
   return result;
 };
 
 const getSingleStudentFromDB = async (id: string) => {
-  // const result = await Student.findOne({ id });
-  const result = await Student.aggregate([{ $match: { id: id } }]);
+  const result = await Student.findOne({ id })
+    .populate('user')
+    .populate('admissionSemester')
+    .populate({
+      path: 'academicDepartment',
+      populate: {
+        path: 'academicFaculty',
+      },
+    });
   return result;
 };
 
@@ -38,3 +53,5 @@ export const StudentServices = {
   updateSingleStudentFromDB,
   deleteStudentFromDB,
 };
+
+//populate chining for get references data from other collection
