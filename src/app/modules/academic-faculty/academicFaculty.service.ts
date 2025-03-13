@@ -20,7 +20,6 @@ const updateAcademicFacultyIntoDB = async (
   _id: string,
   payload: TAcademicFaculty,
 ) => {
-  console.log(payload);
   const result = await AcademicFaculty.findOneAndUpdate(
     { _id },
     { $set: payload },

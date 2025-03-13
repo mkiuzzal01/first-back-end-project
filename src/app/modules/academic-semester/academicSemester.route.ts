@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/', AcademicSemesterControllers.findAllAcademicSemester);
 router.get('/:year', AcademicSemesterControllers.findSingleAcademicSemester);
 router.post(
-  '/create-academic-semester',
+  '/  ',
   validationRequest(academicValidation.academicValidationSchema),
   AcademicSemesterControllers.createAcademicSemester,
 );

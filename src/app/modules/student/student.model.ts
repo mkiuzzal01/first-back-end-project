@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import validator from 'validator';
-import { StudentModel, TStudent, TUserName } from './student.interface';
+import {TStudent, TUserName } from './student.interface';
 
 const UserNameSchema = new Schema<TUserName>({
   firstName: {
@@ -100,7 +100,7 @@ const StudentSchema = new Schema<TStudent>(
     },
     profileImage: { type: String },
     academicDepartment: {
-      type: Schema.ObjectId,
+      type: Schema.Types.ObjectId,
       required: [true, 'Academic department required'],
       ref: 'AcademicDepartment',
     },
@@ -108,9 +108,9 @@ const StudentSchema = new Schema<TStudent>(
       type: Schema.Types.ObjectId,
       unique: true,
       required: [true, 'Admission semester required'],
-      ref: 'Academic',
+      ref: 'AcademicSemester',
     },
-    isDeleted: { type:Boolean, default: false },
+    isDeleted: { type: Boolean, default: false },
   },
   {
     toJSON: {
@@ -141,4 +141,4 @@ StudentSchema.methods.isUserExist = async function (id: string) {
   return existingUser;
 };
 
-export const Student = model<TStudent, StudentModel>('Student', StudentSchema);
+export const Student = model<TStudent>('Student', StudentSchema);

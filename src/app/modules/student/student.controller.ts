@@ -26,12 +26,12 @@ const getSingleStudent: RequestHandler = catchAsync(async (req, res) => {
 
 const updateStudent: RequestHandler = catchAsync(async (req, res) => {
   const { studentId } = req.params;
-  const updateData = req.body;
-  const result = await StudentServices.updateSingleStudentFromDB(
+  const {student} = req.body;
+  const result = await StudentServices.updateSingleStudentIntoDB(
     studentId,
-    updateData,
+    student,
   );
-  res.status(200).send({
+  res.status(status.OK).send({
     success: true,
     message: 'Student updated successfully',
     data: result,
