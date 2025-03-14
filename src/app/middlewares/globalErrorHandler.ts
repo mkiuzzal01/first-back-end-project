@@ -6,6 +6,7 @@ import { TErrorSources } from '../interface/error';
 import handleValidationError from '../errors/handleValidationError';
 import handleCastError from '../errors/handleCastError';
 import handleDuplicateError from '../errors/handleDuplicateError';
+import AppError from '../errors/AppError';
 
 const globalErrorHandler: ErrorRequestHandler = (
   err,
@@ -40,11 +41,19 @@ const globalErrorHandler: ErrorRequestHandler = (
     statusCode = simplifiedError?.statusCode;
     message = simplifiedError?.message;
     errorSources = simplifiedError?.errorSources;
-  }else if (err.code === 11000){
+  } else if (err.code === 11000) {
     const simplifiedError = handleDuplicateError(err);
     statusCode = simplifiedError?.statusCode;
     message = simplifiedError?.message;
     errorSources = simplifiedError?.errorSources;
+  } else if (err instanceof AppError) {
+    statusCode = err.statusCode;
+    message = err.message;
+    errorSources = [{ path: '', message: err.message }];
+  } else if (err instanceof Error) {
+    message = err.message;
+    statusCode = statusCode;
+    errorSources = [{ path: '', message: err.message }];
   }
 
   res.status(statusCode).json({

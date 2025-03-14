@@ -14,6 +14,7 @@ app.use('/api/v1/',router);
 
 // This is  just test:
 app.get('/', (req: Request, res: Response) => {
+  Promise.reject();
   res.send(req);
 });
 
