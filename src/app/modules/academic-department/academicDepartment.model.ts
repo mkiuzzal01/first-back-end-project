@@ -22,15 +22,15 @@ const academicDepartmentSchema = new Schema<TAcademicDepartment>(
 );
 
 //check department is existing check:
-academicDepartmentSchema.pre('save', async function (next) {
-  const isDepartment = await AcademicDepartment.findOne({
-    name: this.name,
-  });
-  if (isDepartment) {
-    throw new Error('Academic department already exists');
-  }
-  next();
-});
+// academicDepartmentSchema.pre('save', async function (next) {
+//   const isDepartment = await AcademicDepartment.findOne({
+//     name: this.name,
+//   });
+//   if (isDepartment) {
+//     throw new Error('Academic department already exists');
+//   }
+//   next();
+// });
 
 //check department exists or not existing:
 academicDepartmentSchema.pre('findOneAndUpdate', async function (next) {

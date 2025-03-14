@@ -10,7 +10,6 @@ const updateSingleAcademicDepartmentIntoDB = async (
   departmentId: string,
   payload: Partial<TAcademicDepartment>,
 ) => {
-
   const result = await AcademicDepartment.findOneAndUpdate(
     { _id: departmentId },
     payload,
@@ -23,9 +22,15 @@ const updateSingleAcademicDepartmentIntoDB = async (
 };
 
 const getSingleAcademicFromDB = async (departmentId: string) => {
-  const result =
-    await AcademicDepartment.findById(departmentId).populate('academicFaculty');
-  return result;
+  try {
+    const result =
+      await AcademicDepartment.findById(departmentId).populate(
+        'academicFaculty',
+      );
+    return result;
+  } catch (error) {
+    throw error;
+  }
 };
 
 const getAllAcademicDepartmentsFromDB = async () => {
