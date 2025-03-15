@@ -4,9 +4,82 @@ import { Student } from './student.model';
 import AppError from '../../errors/AppError';
 import status from 'http-status';
 import { User } from '../user/user.model';
+import QueryBuilder from '../../builder/QueryBuilder';
+import { studentSearchableFields } from './student.constant';
 
-const getAllStudentFromDB = async () => {
-  const result = await Student.find()
+const getAllStudentFromDB = async (query: Record<string, unknown>) => {
+  // copy query object:
+  // const queryObj = { ...query };
+
+  // let searchTerm = '';
+  // if (query.searchTerm) {
+  //   searchTerm = query?.searchTerm as string;
+  // }
+
+  // mapping searchable fields:
+
+  // search query:
+  // const searchQuery = Student.find({
+  //   $or: studentSearchableFields.map((field) => ({
+  //     [field]: { $regex: searchTerm, $options: 'i' },
+  //   })),
+  // });
+
+  // const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
+  // excludeFields.forEach((element) => delete queryObj[element]);
+
+  // console.log('base query:', query, queryObj);
+
+  // filter query:
+  // const filterQuery = searchQuery
+  //   .find(queryObj)
+  //   .populate('user')
+  //   .populate('admissionSemester')
+  //   .populate({
+  //     path: 'academicDepartment',
+  //     populate: {
+  //       path: 'academicFaculty',
+  //     },
+  //   });
+
+  // let sort = '-createdAt';
+  // if (query.sort) {
+  //   sort = query.sort as string;
+  // }
+  // // sort query:
+  // const sortQuery = filterQuery.sort(sort);
+
+  // paginate query:
+  // let page = 1;
+  // let limit = 1;
+  // let skip = 0;
+
+  // if (query.limit) {
+  //   limit = Number(query.limit);
+  // }
+
+  // if (query.page) {
+  //   page = Number(query.page);
+  //   skip = (page - 1) * limit; //this  is the formula for skipping:
+  // }
+
+  // const paginateQuery = sortQuery.skip(skip);
+
+  // const limitQuery = paginateQuery.limit(limit);
+
+  // field  limiting:
+  // let fields = '-__v';
+
+  // if (query.fields) {
+  //   fields = (query.fields as string).split(',').join(' ');
+  // }
+
+  // const fieldQuery = await limitQuery.select(fields);
+
+  // return fieldQuery;
+
+  // ============= use for custom class ==============
+  const studentFind = Student.find()
     .populate('user')
     .populate('admissionSemester')
     .populate({
@@ -15,6 +88,14 @@ const getAllStudentFromDB = async () => {
         path: 'academicFaculty',
       },
     });
+  const studentQuery = new QueryBuilder(studentFind, query)
+    .search(studentSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const result = await studentQuery.modelQuery;
   return result;
 };
 

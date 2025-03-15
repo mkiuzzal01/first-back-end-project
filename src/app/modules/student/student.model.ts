@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import validator from 'validator';
-import {TStudent, TUserName } from './student.interface';
+import { TStudent, TUserName } from './student.interface';
 
 const UserNameSchema = new Schema<TUserName>({
   firstName: {
@@ -106,7 +106,6 @@ const StudentSchema = new Schema<TStudent>(
     },
     admissionSemester: {
       type: Schema.Types.ObjectId,
-      unique: true,
       required: [true, 'Admission semester required'],
       ref: 'AcademicSemester',
     },
@@ -121,7 +120,7 @@ const StudentSchema = new Schema<TStudent>(
 
 // virtual
 StudentSchema.virtual('fullName').get(function () {
-  return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
+  return `${this?.name?.firstName} ${this?.name?.middleName} ${this?.name?.lastName}`;
 });
 
 // query middleware
