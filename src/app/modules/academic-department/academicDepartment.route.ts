@@ -8,7 +8,7 @@ const route = express.Router();
 // all routes
 route.get('/', AcademicDepartmentController.getAllDepartments);
 
-route.get('/:departmentId', AcademicDepartmentController.getSingleDepartment);
+route.get('/:id', AcademicDepartmentController.getSingleDepartment);
 
 route.post(
   '/create-department',
@@ -19,7 +19,7 @@ route.post(
 );
 
 route.patch(
-  '/:departmentId',
+  '/:id',
   validationRequest(
     AcademicDepartmentValidation.updateAcademicDepartmentValidation,
   ),

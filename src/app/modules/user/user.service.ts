@@ -28,7 +28,7 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     // Find the admission semester:
     const studentAdmissionSemester = await AcademicSemester.findById(
       payload.admissionSemester,
-    ).session(session);
+    );
 
     if (!studentAdmissionSemester) {
       throw new AppError(status.NOT_FOUND, 'Admission semester not found');

@@ -5,7 +5,8 @@ import sendResponse from '../../../utils/sendResponse';
 import status from 'http-status';
 
 const getAllAdmin: RequestHandler = catchAsync(async (req, res) => {
-  const result = await AdminServices.getAllAdminFromBD();
+  const { query } = req;
+  const result = await AdminServices.getAllAdminFromBD(query);
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
@@ -27,10 +28,10 @@ const getSingleAdmin: RequestHandler = catchAsync(async (req, res) => {
 });
 
 const updateAdmin: RequestHandler = catchAsync(async (req, res) => {
-  const { adminId } = req.params;
+  const { id } = req.params;
   const updatedAdmin = req.body.admin;
 
-  const result = await AdminServices.updateAdminIntoDB(adminId, updatedAdmin);
+  const result = await AdminServices.updateAdminIntoDB(id, updatedAdmin);
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
@@ -40,8 +41,8 @@ const updateAdmin: RequestHandler = catchAsync(async (req, res) => {
 });
 
 const deleteAdmin: RequestHandler = catchAsync(async (req, res) => {
-  const { adminId } = req.params;
-  const result = await AdminServices.deleteAdminIntoDB(adminId);
+  const { id } = req.params;
+  const result = await AdminServices.deleteAdminIntoDB(id);
 
   sendResponse(res, {
     statusCode: status.OK,

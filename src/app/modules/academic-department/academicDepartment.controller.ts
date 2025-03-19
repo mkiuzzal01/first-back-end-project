@@ -17,11 +17,12 @@ const createDepartment: RequestHandler = catchAsync(async (req, res) => {
 });
 
 const updateDepartment: RequestHandler = catchAsync(async (req, res) => {
-  const { departmentId } = req.params;
+  const { id } = req.params;
   const department = req.body;
-  
-  const result = await AcademicDepartmentService.updateSingleAcademicDepartmentIntoDB(
-      departmentId,
+
+  const result =
+    await AcademicDepartmentService.updateSingleAcademicDepartmentIntoDB(
+      id,
       department,
     );
   sendResponse(res, {
@@ -33,9 +34,8 @@ const updateDepartment: RequestHandler = catchAsync(async (req, res) => {
 });
 
 const getSingleDepartment: RequestHandler = catchAsync(async (req, res) => {
-  const { departmentId } = req.params;
-  const result =
-    await AcademicDepartmentService.getSingleAcademicFromDB(departmentId);
+  const { id } = req.params;
+  const result = await AcademicDepartmentService.getSingleAcademicFromDB(id);
 
   sendResponse(res, {
     statusCode: status.OK,

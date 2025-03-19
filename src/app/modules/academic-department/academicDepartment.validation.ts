@@ -9,14 +9,18 @@ const createAcademicDepartmentValidation = z.object({
 
 const updateAcademicDepartmentValidation = z.object({
   body: z.object({
-    name: z.string({
-      invalid_type_error: 'Name is string',
-      required_error: 'Name is required',
-    }),
-    academicFaculty: z.string({
-      invalid_type_error: 'Academic faculty is string',
-      required_error: 'Academic faculty is required',
-    }),
+    name: z
+      .string({
+        invalid_type_error: 'Name is string',
+        required_error: 'Name is required',
+      })
+      .optional(),
+    academicFaculty: z
+      .string({
+        invalid_type_error: 'Academic faculty is string',
+        required_error: 'Academic faculty is required',
+      })
+      .optional(),
   }),
 });
 

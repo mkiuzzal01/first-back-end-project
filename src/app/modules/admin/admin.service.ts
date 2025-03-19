@@ -4,21 +4,29 @@ import { Admin } from './admin.model';
 import AppError from '../../errors/AppError';
 import status from 'http-status';
 import { User } from '../user/user.model';
+import QueryBuilder from '../../builder/QueryBuilder';
+import { adminSearchableField } from './admin.constant';
 
-const getAllAdminFromBD = async () => {
-  const result = await Admin.find();
-  return result;
+const getAllAdminFromBD = async (query: Record<string, unknown>) => {
+  const adminFind = Admin.find().populate('user');
+
+  const adminQuery = new QueryBuilder(adminFind, query)
+    .search(adminSearchableField)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+  const results = adminQuery.modelQuery;
+  return results;
 };
 
 const getSingleAdminFromDB = async (id: string) => {
-  const result = await Admin.findOne();
+  const result = await Admin.findById(id);
   return result;
 };
 
 const updateAdminIntoDB = async (id: string, payload: TAdmin) => {
-  console.log(payload);
-
-  const result = await Admin.findOneAndUpdate({ id }, payload, {
+  const result = await Admin.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
   });
@@ -31,21 +39,22 @@ const deleteAdminIntoDB = async (id: string) => {
   session.startTransaction();
 
   try {
-    const deleteAdmin = await Admin.findOneAndUpdate(
-      { id },
+    const deleteAdmin = await Admin.findByIdAndUpdate(
+      id,
       { isDeleted: true },
-      { new: true, runValidators: true, session },
+      { new: true, session },
     );
 
     if (!deleteAdmin) {
       throw new AppError(status.BAD_REQUEST, 'admin delete failed');
     }
 
-    const deleteUser = await User.findOneAndUpdate(
-      { id },
+    const deleteUser = await User.findByIdAndUpdate(
+      deleteAdmin.user,
       { isDeleted: true },
-      { new: true, runValidators: true, session },
+      { new: true, session },
     );
+
     if (!deleteUser) {
       throw new AppError(status.BAD_REQUEST, 'user delete failed');
     }

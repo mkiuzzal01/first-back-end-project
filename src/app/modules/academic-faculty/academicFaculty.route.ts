@@ -10,12 +10,12 @@ const router = express.Router();
 
 //all route
 router.get('/', AcademicFacultyControllers.getAllAcademicFaculties);
-router.get('/:facultyId', AcademicFacultyControllers.getSingleAcademicFaculty);
+router.get('/:id', AcademicFacultyControllers.getSingleAcademicFaculty);
 router.patch(
-  '/:facultyId',
+  '/:id',
   validationRequest(updateAcademicFacultyValidation),
   AcademicFacultyControllers.updateAcademicFaculty,
 );
-router.delete('/:facultyId', AcademicFacultyControllers.deleteAcademicFaculty);
+router.delete('/:id', AcademicFacultyControllers.deleteAcademicFaculty);
 
 export const AcademicSemesterRouters = router;

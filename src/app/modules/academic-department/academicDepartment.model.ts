@@ -39,7 +39,7 @@ academicDepartmentSchema.pre('save', async function (next) {
 academicDepartmentSchema.pre('findOneAndUpdate', async function (next) {
   const query = this.getQuery();
 
-  const isDepartment = await AcademicDepartment.findOne({ query });
+  const isDepartment = await AcademicDepartment.findById(query);
 
   if (!isDepartment) {
     throw new AppError(status.NOT_FOUND, 'Academic department not found');

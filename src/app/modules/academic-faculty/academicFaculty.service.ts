@@ -4,14 +4,27 @@ import { AcademicFaculty } from './academicFaculty.model';
 import status from 'http-status';
 import AppError from '../../errors/AppError';
 import { User } from '../user/user.model';
+import QueryBuilder from '../../builder/QueryBuilder';
+import { academicFacultySearchableField } from './academicFaculty.constant';
 
-const getAllAcademicFacultiesFromDB = async () => {
-  const result = await AcademicFaculty.find();
+const getAllAcademicFacultiesFromDB = async (
+  query: Record<string, unknown>,
+) => {
+  const academicFacultyFind = AcademicFaculty.find().populate('user');
+
+  const academicFacultyQuery = new QueryBuilder(academicFacultyFind, query)
+    .search(academicFacultySearchableField)
+    .filter()
+    .paginate()
+    .sort()
+    .fields();
+
+  const result = await academicFacultyQuery.modelQuery;
   return result;
 };
 
 const getSingleAcademicFacultyFromDB = async (id: string) => {
-  const result = await AcademicFaculty.findOne({ id });
+  const result = await AcademicFaculty.findById(id);
   return result;
 };
 
@@ -19,13 +32,13 @@ const updateAcademicFacultyIntoDB = async (
   id: string,
   payload: TAcademicFaculty,
 ) => {
-  const result = await AcademicFaculty.findOneAndUpdate(
-    { id },
+
+  const result = await AcademicFaculty.findByIdAndUpdate(
+    id,
     { $set: payload },
     { new: true, runValidators: true },
   );
 
-  // console.log(result);
   return result;
 };
 
@@ -33,8 +46,8 @@ const deleteAcademicFacultyFromDB = async (id: string) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const deleteFaculty = await AcademicFaculty.findOneAndUpdate(
-      { id },
+    const deleteFaculty = await AcademicFaculty.findByIdAndUpdate(
+      id,
       { isDeleted: true },
       { new: true, session },
     );
@@ -46,8 +59,8 @@ const deleteAcademicFacultyFromDB = async (id: string) => {
       );
     }
 
-    const deleteUser = await User.findOneAndUpdate(
-      { id },
+    const deleteUser = await User.findByIdAndUpdate(
+      deleteFaculty.user,
       { isDeleted: true },
       { new: true, session },
     );

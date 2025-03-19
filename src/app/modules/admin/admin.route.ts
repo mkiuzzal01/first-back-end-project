@@ -9,10 +9,10 @@ const router = express.Router();
 router.get('/', AdminController.getAllAdmin);
 router.get('/:adminId', AdminController.getSingleAdmin);
 router.patch(
-  '/:adminId',
+  '/:id',
   validationRequest(updateAdminValidation),
   AdminController.updateAdmin,
 );
-router.delete('/:adminId', AdminController.deleteAdmin);
+router.delete('/:id', AdminController.deleteAdmin);
 
 export const AdminRoutes = router;

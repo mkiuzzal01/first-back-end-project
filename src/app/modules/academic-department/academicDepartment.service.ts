@@ -7,14 +7,13 @@ const createAcademicDepartmentIntoDB = async (payload: TAcademicDepartment) => {
 };
 
 const updateSingleAcademicDepartmentIntoDB = async (
-  departmentId: string,
+  id: string,
   payload: Partial<TAcademicDepartment>,
 ) => {
-  const result = await AcademicDepartment.findOneAndUpdate(
-    { _id: departmentId },
-    payload,
-    { new: true },
-  );
+  const result = await AcademicDepartment.findByIdAndUpdate(id, payload, {
+    new: true,
+    runValidators: true,
+  });
 
   console.log(result);
 
