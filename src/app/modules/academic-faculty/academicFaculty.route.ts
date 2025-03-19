@@ -1,9 +1,6 @@
 import express from 'express';
 import validationRequest from '../../middlewares/validRequest';
-import {
-  FacultyValidation,
-  updateAcademicFacultyValidation,
-} from './academicFaculty.validation';
+import { updateAcademicFacultyValidation } from './academicFaculty.validation';
 import { AcademicFacultyControllers } from './academicFaculty.controller';
 
 const router = express.Router();
