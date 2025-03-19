@@ -1,5 +1,5 @@
-import { TAcademicSemester } from '../academic-semester/academicSemester.interface';
-import { User } from './user.model';
+import { TAcademicSemester } from '../../academic-semester/academicSemester.interface';
+import { User } from '../user.model';
 
 // Find the last student
 const findLastStudent = async () => {
@@ -48,3 +48,5 @@ export const generateStudentId = async (payload: TAcademicSemester) => {
 
   return studentId;
 };
+
+

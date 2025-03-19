@@ -3,18 +3,6 @@ import sendResponse from '../../../utils/sendResponse';
 import status from 'http-status';
 import { AcademicFacultyServices } from './academicFaculty.service';
 
-const createAcademicFaculty = catchAsync(async (req, res) => {
-  const result = await AcademicFacultyServices.createAcademicFacultyIntoDB(
-    req.body,
-  );
-  sendResponse(res, {
-    statusCode: status.OK,
-    success: true,
-    message: 'Academic faculty created successfully',
-    data: result,
-  });
-});
-
 const getSingleAcademicFaculty = catchAsync(async (req, res) => {
   const { facultyId } = req.params;
   const result =
@@ -38,15 +26,13 @@ const getAllAcademicFaculties = catchAsync(async (req, res) => {
 
 const updateAcademicFaculty = catchAsync(async (req, res) => {
   const { facultyId } = req.params;
-  const updateData = req.body;
+  const updateData = req.body.faculty;
 
   const result = await AcademicFacultyServices.updateAcademicFacultyIntoDB(
     facultyId,
     updateData,
   );
 
-  console.log(result);
-  
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
@@ -55,9 +41,22 @@ const updateAcademicFaculty = catchAsync(async (req, res) => {
   });
 });
 
+const deleteAcademicFaculty = catchAsync(async (req, res) => {
+  const { facultyId } = req.params;
+
+  const result =
+    await AcademicFacultyServices.deleteAcademicFacultyFromDB(facultyId);
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Academic faculty deleted successfully',
+    data: result,
+  });
+});
+
 export const AcademicFacultyControllers = {
-  createAcademicFaculty,
   getSingleAcademicFaculty,
   getAllAcademicFaculties,
   updateAcademicFaculty,
+  deleteAcademicFaculty,
 };

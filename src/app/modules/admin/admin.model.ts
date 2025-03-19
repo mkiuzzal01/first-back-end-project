@@ -1,27 +1,33 @@
 import { model, Schema } from 'mongoose';
-import { TAcademicFaculty } from './academicFaculty.interface';
+import { TAdmin } from './admin.interface';
 
-const academicFacultySchema = new Schema<TAcademicFaculty>(
+const adminSchema = new Schema<TAdmin>(
   {
     id: {
       type: String,
       unique: true,
-      required: [true, 'ID is required'],
+      required: true,
     },
     user: {
       type: Schema.Types.ObjectId,
       unique: true,
-      required: [true, 'User id must be required'],
+      required: true,
       ref: 'User',
     },
     name: {
       type: String,
-      unique: true,
       required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
     },
     isDeleted: {
       type: Boolean,
       default: false,
+      required: false,
     },
   },
   {
@@ -29,7 +35,4 @@ const academicFacultySchema = new Schema<TAcademicFaculty>(
   },
 );
 
-export const AcademicFaculty = model<TAcademicFaculty>(
-  'AcademicFaculty',
-  academicFacultySchema,
-);
+export const Admin = model<TAdmin>('Admin', adminSchema);

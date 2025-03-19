@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 
-export type TAcademicFaculty = {
+export type TAdmin = {
   id: string;
   user: mongoose.Types.ObjectId;
-  name: String;
+  name: string;
+  email: string;
   isDeleted: boolean;
 };

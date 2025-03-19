@@ -88,6 +88,7 @@ const getAllStudentFromDB = async (query: Record<string, unknown>) => {
         path: 'academicFaculty',
       },
     });
+    
   const studentQuery = new QueryBuilder(studentFind, query)
     .search(studentSearchableFields)
     .filter()

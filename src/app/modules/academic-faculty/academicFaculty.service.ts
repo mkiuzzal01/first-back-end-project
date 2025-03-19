@@ -1,27 +1,26 @@
+import mongoose from 'mongoose';
 import { TAcademicFaculty } from './academicFaculty.interface';
 import { AcademicFaculty } from './academicFaculty.model';
-
-const createAcademicFacultyIntoDB = async (payload: TAcademicFaculty) => {
-  const result = await AcademicFaculty.create(payload);
-  return result;
-};
+import status from 'http-status';
+import AppError from '../../errors/AppError';
+import { User } from '../user/user.model';
 
 const getAllAcademicFacultiesFromDB = async () => {
   const result = await AcademicFaculty.find();
   return result;
 };
 
-const getSingleAcademicFacultyFromDB = async (_id: string) => {
-  const result = await AcademicFaculty.findById({ _id });
+const getSingleAcademicFacultyFromDB = async (id: string) => {
+  const result = await AcademicFaculty.findOne({ id });
   return result;
 };
 
 const updateAcademicFacultyIntoDB = async (
-  _id: string,
+  id: string,
   payload: TAcademicFaculty,
 ) => {
   const result = await AcademicFaculty.findOneAndUpdate(
-    { _id },
+    { id },
     { $set: payload },
     { new: true, runValidators: true },
   );
@@ -30,9 +29,45 @@ const updateAcademicFacultyIntoDB = async (
   return result;
 };
 
+const deleteAcademicFacultyFromDB = async (id: string) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const deleteFaculty = await AcademicFaculty.findOneAndUpdate(
+      { id },
+      { isDeleted: true },
+      { new: true, session },
+    );
+
+    if (!deleteFaculty) {
+      throw new AppError(
+        status.BAD_REQUEST,
+        'Failed to delete academic faculty',
+      );
+    }
+
+    const deleteUser = await User.findOneAndUpdate(
+      { id },
+      { isDeleted: true },
+      { new: true, session },
+    );
+
+    if (!deleteUser) {
+      throw new AppError(status.BAD_REQUEST, 'Failed to delete user');
+    }
+
+    await session.commitTransaction();
+    await session.endSession();
+  } catch (error) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw error;
+  }
+};
+
 export const AcademicFacultyServices = {
-  createAcademicFacultyIntoDB,
   getAllAcademicFacultiesFromDB,
   getSingleAcademicFacultyFromDB,
   updateAcademicFacultyIntoDB,
+  deleteAcademicFacultyFromDB,
 };
