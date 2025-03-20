@@ -1,7 +1,7 @@
 import express from 'express';
 import validationRequest from '../../middlewares/validRequest';
 import {
-  assignCourseFacultyToCourseValidation,
+  courseFacultyValidation,
   createCourseValidation,
   updateCreateCourseValidation,
 } from './course.validation';
@@ -27,8 +27,13 @@ router.patch(
 router.delete('/:id', CourseController.deleteCourse);
 router.put(
   '/:courseId/assign-faculty',
-  validationRequest(assignCourseFacultyToCourseValidation),
+  validationRequest(courseFacultyValidation),
   CourseController.assignCourseFaculty,
+);
+router.delete(
+  '/:courseId/remove-faculty',
+  validationRequest(courseFacultyValidation),
+  CourseController.removeCourseFaculty,
 );
 
 export const CourseRoutes = router;
