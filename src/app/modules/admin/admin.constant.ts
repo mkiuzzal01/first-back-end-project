@@ -1,4 +1,4 @@
-export const adminSearchableField = [
+export const adminSearchableField  = [
     'name',
     'email',
   ];

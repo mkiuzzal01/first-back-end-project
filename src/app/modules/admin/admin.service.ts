@@ -16,6 +16,7 @@ const getAllAdminFromBD = async (query: Record<string, unknown>) => {
     .sort()
     .paginate()
     .fields();
+    
   const results = adminQuery.modelQuery;
   return results;
 };
