@@ -10,10 +10,10 @@ import AppError from '../../errors/AppError';
 import status from 'http-status';
 import { TAcademicFaculty } from '../academic-faculty/academicFaculty.interface';
 import { generateFacultyId } from './user-utils/generateFacultyId';
-import { AcademicFaculty } from '../academic-faculty/academicFaculty.model';
 import { TAdmin } from '../admin/admin.interface';
 import { generateAdmin } from '../admin/admin-utils/generateAdminId';
 import { Admin } from '../admin/admin.model';
+import { Faculty } from '../faculties/faculties.model';
 
 const createStudentIntoDB = async (password: string, payload: TStudent) => {
   const session = await mongoose.startSession(); // Start transaction
@@ -71,6 +71,7 @@ const createFacultyIntoBD = async (
   password: string,
   payload: TAcademicFaculty,
 ) => {
+
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -94,7 +95,7 @@ const createFacultyIntoBD = async (
     payload.user = newUser[0]._id;
 
     // Create Faculty
-    const newFaculty = await AcademicFaculty.create([payload], { session });
+    const newFaculty = await Faculty.create([payload], { session });
     if (!newFaculty.length) {
       throw new AppError(status.BAD_REQUEST, 'Failed to create faculty');
     }

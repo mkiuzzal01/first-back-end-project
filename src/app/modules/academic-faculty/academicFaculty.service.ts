@@ -1,9 +1,5 @@
-import mongoose from 'mongoose';
 import { TAcademicFaculty } from './academicFaculty.interface';
 import { AcademicFaculty } from './academicFaculty.model';
-import status from 'http-status';
-import AppError from '../../errors/AppError';
-import { User } from '../user/user.model';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { academicFacultySearchableField } from './academicFaculty.constant';
 
@@ -32,55 +28,32 @@ const updateAcademicFacultyIntoDB = async (
   id: string,
   payload: TAcademicFaculty,
 ) => {
-
   const result = await AcademicFaculty.findByIdAndUpdate(
     id,
     { $set: payload },
     { new: true, runValidators: true },
   );
+  return result;
+};
 
+const createAcademicFacultyIntoDB = async (payload:TAcademicFaculty) => {
+  const result = await AcademicFaculty.create(payload);
   return result;
 };
 
 const deleteAcademicFacultyFromDB = async (id: string) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  try {
-    const deleteFaculty = await AcademicFaculty.findByIdAndUpdate(
-      id,
-      { isDeleted: true },
-      { new: true, session },
-    );
-
-    if (!deleteFaculty) {
-      throw new AppError(
-        status.BAD_REQUEST,
-        'Failed to delete academic faculty',
-      );
-    }
-
-    const deleteUser = await User.findByIdAndUpdate(
-      deleteFaculty.user,
-      { isDeleted: true },
-      { new: true, session },
-    );
-
-    if (!deleteUser) {
-      throw new AppError(status.BAD_REQUEST, 'Failed to delete user');
-    }
-
-    await session.commitTransaction();
-    await session.endSession();
-  } catch (error) {
-    await session.abortTransaction();
-    await session.endSession();
-    throw error;
-  }
+  const result = await AcademicFaculty.findByIdAndUpdate(
+    id,
+    { isDeleted: true },
+    { new: true, runValidators: true },
+  );
+  return result;
 };
 
 export const AcademicFacultyServices = {
   getAllAcademicFacultiesFromDB,
   getSingleAcademicFacultyFromDB,
+  createAcademicFacultyIntoDB,
   updateAcademicFacultyIntoDB,
   deleteAcademicFacultyFromDB,
 };
