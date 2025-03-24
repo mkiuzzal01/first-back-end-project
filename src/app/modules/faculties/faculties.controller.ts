@@ -7,7 +7,7 @@ import status from 'http-status';
 const updateFaculty: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
-    const faculty = req.body;
+    const {faculty} = req.body;
 
     const result = await facultyService.updateFacultyIntoBD(id, faculty);
     sendResponse(res, {
@@ -20,7 +20,8 @@ const updateFaculty: RequestHandler = catchAsync(
 );
 
 const getAllFaculty = catchAsync(async (req: Request, res: Response) => {
-  const result = await facultyService.getAllFacultyFromDB();
+  const query = req.query;
+  const result = await facultyService.getAllFacultyFromDB(query);
   sendResponse(res, {
     statusCode: status.OK,
     success: true,

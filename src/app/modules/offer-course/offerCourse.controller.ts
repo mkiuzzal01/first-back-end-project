@@ -6,9 +6,16 @@ import status from 'http-status';
 
 const getAllOfferCourses: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
-    // Implement your logic here
+    const result = await offerCoursesService.getSingleOfferCourseFromDB();
+    sendResponse(res, {
+      statusCode: status.OK,
+      success: true,
+      message: 'All Offer Courses fetched successfully',
+      data: result,
+    });
   },
 );
+
 const getSingleOfferCourses: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     // Implement your logic here
@@ -30,7 +37,19 @@ const createOfferCourse: RequestHandler = catchAsync(
 
 const updateOfferCourse: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
-    // Implement your logic here
+    const { id } = req.params;
+    const course = req.body;
+
+    const result = await offerCoursesService.updateOfferCourseIntoDB(
+      id,
+      course,
+    );
+    sendResponse(res, {
+      statusCode: status.OK,
+      success: true,
+      message: 'Offer Course updated successfully',
+      data: result,
+    });
   },
 );
 

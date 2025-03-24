@@ -22,4 +22,4 @@ router.patch(
 router.get('/:id', offerCourseController.updateOfferCourse);
 router.get('/', offerCourseController.getAllOfferCourses);
 
-export const offerCourseRouter = router;
+export const OfferCourseRouter = router;

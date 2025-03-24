@@ -39,21 +39,22 @@ const offerCourseSchema = new Schema<TOfferCourse>(
       required: true,
     },
     section: {
-      type: Schema.Types.ObjectId,
-      ref: 'Section',
+      type: Number,
       required: true,
     },
-    days: {
-      type: String,
-      enum: Days,
-      required: true,
-    },
+    days: [
+      {
+        type: String,
+        enum: Days,
+        required: true,
+      },
+    ],
     startTime: {
-      type: Date,
+      type: String,
       required: true,
     },
     endTime: {
-      type: Date,
+      type: String,
       required: true,
     },
   },

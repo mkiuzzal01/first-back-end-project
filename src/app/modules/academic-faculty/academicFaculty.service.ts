@@ -6,8 +6,7 @@ import { academicFacultySearchableField } from './academicFaculty.constant';
 const getAllAcademicFacultiesFromDB = async (
   query: Record<string, unknown>,
 ) => {
-  const academicFacultyFind = AcademicFaculty.find().populate('user');
-
+  const academicFacultyFind = AcademicFaculty.find();
   const academicFacultyQuery = new QueryBuilder(academicFacultyFind, query)
     .search(academicFacultySearchableField)
     .filter()
