@@ -7,6 +7,7 @@ import { AcademicDepartment } from '../academic-department/academicDepartment.mo
 import { Course } from '../course/course.model';
 import { Faculty } from '../faculties/faculties.model';
 import { hasTimeConflict } from './offerCourse.utils';
+import mongoose from 'mongoose';
 
 const createOfferCourseIntoDB = async (payload: TOfferCourse) => {
   const {
@@ -106,7 +107,15 @@ const updateOfferCourseIntoDB = async (id: string, payload: TOfferCourse) => {
   }
 
   //get the schedule of the faculties:
-  const semesterRegistration = isOfferCourseExist.semesterRegistration;
+  const semesterRegistration = await SemesterRegistration.findById(
+    isOfferCourseExist.semesterRegistration,
+  );
+  if (semesterRegistration?.status !== 'UPCOMING') {
+    throw new AppError(
+      status.FORBIDDEN,
+      'Cannot update ONGOING semester to UPCOMING status',
+    );
+  }
   const assignedSchedule = await OfferCourse.find({
     semesterRegistration,
     faculty,
@@ -128,8 +137,16 @@ const updateOfferCourseIntoDB = async (id: string, payload: TOfferCourse) => {
   });
 };
 
-const deleteOfferCourseFromDB = () => {
-  // Code to delete offer course from DB goes here
+const deleteOfferCourseFromDB = async (id: string) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  
+  try {
+    const isOfferCourseExist = await OfferCourse.findById(id);
+    if (!isOfferCourseExist) {
+      throw new AppError(status.NOT_FOUND, 'Offer course not found');
+    }
+  } catch (error) {}
 };
 
 const getAllOfferCoursesFromDB = async () => {
@@ -137,8 +154,9 @@ const getAllOfferCoursesFromDB = async () => {
   return result;
 };
 
-const getSingleOfferCourseFromDB = () => {
-  // Code to get single offer course from DB goes here
+const getSingleOfferCourseFromDB = async (id: string) => {
+  const result = await OfferCourse.findById(id);
+  return result;
 };
 
 export const offerCoursesService = {

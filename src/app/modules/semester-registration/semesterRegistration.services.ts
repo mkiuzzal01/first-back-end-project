@@ -4,6 +4,8 @@ import { TSemesterRegistration } from './semesterRegistration.interface';
 import AppError from '../../errors/AppError';
 import { registrationSemesterStatus } from './semesterRegistration.constant';
 import { SemesterRegistration } from './semesterRegistration.model';
+import mongoose from 'mongoose';
+import { OfferCourse } from '../offer-course/offerCourse.model';
 
 const createSemesterRegistrationIntoBD = async (
   payload: TSemesterRegistration,
@@ -103,9 +105,55 @@ const getSingleSemesterRegistrationFromDB = async (id: string) => {
   return result;
 };
 
+const deleteSemesterRegistrationFromDB = async (id: string) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    // Find the semester registration
+    const semester = await SemesterRegistration.findById(id);
+    if (!semester) {
+      throw new AppError(status.NOT_FOUND, 'Semester registration not found');
+    }
+
+    if (semester.status !== 'UPCOMING') {
+      throw new AppError(
+        status.BAD_REQUEST,
+        'Cannot delete a semester registration that is not UPCOMING',
+      );
+    }
+
+    // Check if there are any offered courses linked to this semester
+    const offeredCoursesExist = await OfferCourse.findOne(
+      { semesterRegistration: id },
+      null,
+      { session }
+    );
+
+    if (offeredCoursesExist) {
+      throw new AppError(
+        status.BAD_REQUEST,
+        'Cannot delete a semester registration with offered courses',
+      );
+    }
+
+    // Delete the semester registration
+    await SemesterRegistration.findByIdAndDelete(id, { session });
+
+    // Commit transaction
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};
+
+
 export const semesterRegistrationService = {
   createSemesterRegistrationIntoBD,
   updateSemesterRegistrationIntoDB,
   getAllSemesterRegistrationFromDB,
   getSingleSemesterRegistrationFromDB,
+  deleteSemesterRegistrationFromDB,
 };

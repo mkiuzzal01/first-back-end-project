@@ -1,7 +1,10 @@
 import express from 'express';
 import { semesterRegistrationController } from './semesterRegistration.controller';
 import validationRequest from '../../middlewares/validRequest';
-import { createSemesterRegistrationValidation, updateSemesterRegistrationValidation } from './semesterRegistration.validation';
+import {
+  createSemesterRegistrationValidation,
+  updateSemesterRegistrationValidation,
+} from './semesterRegistration.validation';
 
 const router = express.Router();
 
@@ -20,6 +23,10 @@ router.get('/', semesterRegistrationController.getAllSemesterRegistration);
 router.get(
   '/:id',
   semesterRegistrationController.getSingleSemesterRegistration,
+);
+router.delete(
+  '/:id',
+  semesterRegistrationController.deleteSemesterRegistration,
 );
 
 export const SemesterRegistrationRoutes = router;

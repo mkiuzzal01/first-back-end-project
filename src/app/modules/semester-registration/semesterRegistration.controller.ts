@@ -1,11 +1,11 @@
-import { RequestHandler } from 'express';
+import { Request, RequestHandler, Response } from 'express';
 import catchAsync from '../../../utils/catchAsync';
 import sendResponse from '../../../utils/sendResponse';
 import status from 'http-status';
 import { semesterRegistrationService } from './semesterRegistration.services';
 
 const createSemesterRegistration: RequestHandler = catchAsync(
-  async (req, res) => {
+  async (req: Request, res: Response) => {
     const data = req.body;
     const result =
       await semesterRegistrationService.createSemesterRegistrationIntoBD(data);
@@ -21,7 +21,7 @@ const createSemesterRegistration: RequestHandler = catchAsync(
 );
 
 const updateSemesterRegistration: RequestHandler = catchAsync(
-  async (req, res) => {
+  async (req: Request, res: Response) => {
     const { id } = req.params;
     const data = req.body;
     const result =
@@ -39,7 +39,7 @@ const updateSemesterRegistration: RequestHandler = catchAsync(
 );
 
 const getAllSemesterRegistration: RequestHandler = catchAsync(
-  async (req, res) => {
+  async (req: Request, res: Response) => {
     const result =
       await semesterRegistrationService.getAllSemesterRegistrationFromDB();
     sendResponse(res, {
@@ -52,7 +52,7 @@ const getAllSemesterRegistration: RequestHandler = catchAsync(
 );
 
 const getSingleSemesterRegistration: RequestHandler = catchAsync(
-  async (req, res) => {
+  async (req: Request, res: Response) => {
     const { id } = req.params;
     const result =
       await semesterRegistrationService.getSingleSemesterRegistrationFromDB(id);
@@ -65,9 +65,23 @@ const getSingleSemesterRegistration: RequestHandler = catchAsync(
   },
 );
 
+const deleteSemesterRegistration: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const {id} = req.params;
+    const result =
+      await semesterRegistrationService.deleteSemesterRegistrationFromDB(id);
+    sendResponse(res, {
+      statusCode: status.OK,
+      success: true,
+      message: 'Semester Registration deleted successfully',
+    });
+  },
+);
+
 export const semesterRegistrationController = {
   createSemesterRegistration,
   updateSemesterRegistration,
   getSingleSemesterRegistration,
   getAllSemesterRegistration,
+  deleteSemesterRegistration,
 };
