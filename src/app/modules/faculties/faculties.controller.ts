@@ -21,6 +21,7 @@ const updateFaculty: RequestHandler = catchAsync(
 
 const getAllFaculty = catchAsync(async (req: Request, res: Response) => {
   const query = req.query;
+  console.log("Text:", req.user);
   const result = await facultyService.getAllFacultyFromDB(query);
   sendResponse(res, {
     statusCode: status.OK,

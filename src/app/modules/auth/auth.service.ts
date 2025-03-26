@@ -33,7 +33,7 @@ const loginUser = async (payload: TUser) => {
 
   //generate access token:
   const jwtPayload = {
-    userId: isUserExist,
+    userId: isUserExist?.id,
     role: isUserExist?.role,
   };
   const accessToken = jwt.sign(jwtPayload, config.token_secret as string, {
