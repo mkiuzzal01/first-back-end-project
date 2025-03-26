@@ -10,6 +10,7 @@ const loginUser: RequestHandler = catchAsync(
       statusCode: 200,
       success: true,
       message: 'Logged in successfully',
+      data: result,
     });
   },
 );
