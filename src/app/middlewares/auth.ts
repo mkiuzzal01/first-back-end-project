@@ -17,7 +17,7 @@ export const auth = (...requiredRole: TUserRole[]) => {
     //verified token with decode:
     const decoded = jwt.verify(
       token,
-      config.token_secret as string,
+      config.access_token_secret as string,
     ) as JwtPayload;
 
     //verification of role and authorization :

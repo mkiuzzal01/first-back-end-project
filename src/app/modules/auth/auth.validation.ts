@@ -14,7 +14,14 @@ export const changePasswordValidation = z.object({
   }),
 });
 
+export const refreshTokenValidation = z.object({
+  cookies: z.object({
+    refreshToken: z.string({ required_error: 'refresh token is required' }),
+  }),
+});
+
 export const AuthValidation = z.object({
   loginValidation,
   changePasswordValidation,
+  refreshTokenValidation,
 });

@@ -2,15 +2,27 @@ import { Request, RequestHandler, Response } from 'express';
 import catchAsync from '../../../utils/catchAsync';
 import sendResponse from '../../../utils/sendResponse';
 import { AuthService } from './auth.service';
+import config from '../../config';
+import status from 'http-status';
 
 const loginUser: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
-    const result = await AuthService.loginUser(req.body);
+    const { accessToken, refreshToken, needsPasswordChange } =
+      await AuthService.loginUser(req.body);
+
+    //set the refresh token in cookies:
+    res.cookie('refreshToken', refreshToken, {
+      secure: config.node_env === 'production',
+      httpOnly: true,
+    });
     sendResponse(res, {
-      statusCode: 200,
+      statusCode: status.OK,
       success: true,
       message: 'Logged in successfully',
-      data: result,
+      data: {
+        accessToken,
+        needsPasswordChange,
+      },
     });
   },
 );
@@ -20,9 +32,9 @@ const changePassword: RequestHandler = catchAsync(
     const userPass = req.body;
     const userData = req.user;
 
-    const result = await AuthService.changePassword(userData,userPass);
+    const result = await AuthService.changePassword(userData, userPass);
     sendResponse(res, {
-      statusCode: 200,
+      statusCode: status.OK,
       success: true,
       message: 'Password update successfully',
       data: result,
@@ -30,7 +42,25 @@ const changePassword: RequestHandler = catchAsync(
   },
 );
 
+const refreshToken: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const { refreshToken } = req.cookies;
+
+    const result = await AuthService.refreshToken(refreshToken);
+
+    sendResponse(res, {
+      statusCode: status.OK,
+      success: true,
+      message: 'Access token is retrieved successfully',
+      data: {
+        result,
+      },
+    });
+  },
+);
+
 export const AuthController = {
   loginUser,
   changePassword,
+  refreshToken,
 };
