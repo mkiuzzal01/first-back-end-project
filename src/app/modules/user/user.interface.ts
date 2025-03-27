@@ -5,6 +5,7 @@ export interface TUser {
   id: string;
   password: string;
   needsPasswordChange: boolean;
+  passwordChangeAt?: Date;
   role: 'admin' | 'student' | 'faculty';
   status: 'in-progress' | 'blocked';
   isDeleted: boolean;
@@ -15,6 +16,11 @@ export interface userModel extends Model<TUser> {
   isPasswordMatch(
     plaintextPassword: string,
     hashedPassword: string,
+  ): Promise<boolean>;
+
+  isJwtIssuedBeforePasswordChange(
+    passwordChangeTime: Date,
+    tokenIssuedTime: number,
   ): Promise<boolean>;
 }
 

@@ -6,8 +6,11 @@ import config from '../../config';
 const userSchema = new Schema<TUser, userModel>(
   {
     id: { type: String, unique: true, required: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true, select: 0 },
     needsPasswordChange: { type: Boolean, default: true },
+    passwordChangeAt: {
+      type: Date,
+    },
     role: {
       type: String,
       enum: ['admin', 'student', 'faculty'],
@@ -25,6 +28,7 @@ const userSchema = new Schema<TUser, userModel>(
   },
 );
 
+// Hash password before saving:
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(
@@ -42,7 +46,7 @@ userSchema.post('save', function (doc, next) {
 
 //check user is exist:
 userSchema.statics.isUserExistByCustomId = async function (id: string) {
-  return await User.findOne({ id });
+  return await User.findOne({ id }).select('+password');
 };
 
 //check password is match:
@@ -51,6 +55,16 @@ userSchema.statics.isPasswordMatch = async function (
   hashedPassword,
 ) {
   return await bcrypt.compare(plaintextPassword, hashedPassword);
+};
+
+//check password change time and jwt token issue time:
+userSchema.statics.isJwtIssuedBeforePasswordChange = async function (
+  passwordChangeTime: Date,
+  tokenIssuedTime: number,
+) {
+
+  const passChangeTime = passwordChangeTime?.getTime() / 1000;
+  return passChangeTime > tokenIssuedTime;
 };
 
 export const User = model<TUser, userModel>('User', userSchema);
