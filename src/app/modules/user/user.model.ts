@@ -6,6 +6,7 @@ import config from '../../config';
 const userSchema = new Schema<TUser, userModel>(
   {
     id: { type: String, unique: true, required: true },
+    email: { type: String, unique: true, required: true },
     password: { type: String, required: true, select: 0 },
     needsPasswordChange: { type: Boolean, default: true },
     passwordChangeAt: {
@@ -62,7 +63,6 @@ userSchema.statics.isJwtIssuedBeforePasswordChange = async function (
   passwordChangeTime: Date,
   tokenIssuedTime: number,
 ) {
-
   const passChangeTime = passwordChangeTime?.getTime() / 1000;
   return passChangeTime > tokenIssuedTime;
 };

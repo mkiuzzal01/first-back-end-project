@@ -14,16 +14,17 @@ import { TAdmin } from '../admin/admin.interface';
 import { generateAdmin } from '../admin/admin-utils/generateAdminId';
 import { Admin } from '../admin/admin.model';
 import { Faculty } from '../faculties/faculties.model';
+import { TFaculty } from '../faculties/faculties.interface';
 
 const createStudentIntoDB = async (password: string, payload: TStudent) => {
   const session = await mongoose.startSession(); // Start transaction
   session.startTransaction();
 
   try {
-    const userData: Partial<TUser> = {
-      password: password || (config.default_password as string),
-      role: 'student',
-    };
+    const userData: Partial<TUser> = {};
+    userData.password = password || (config.default_password as string);
+    userData.role = 'student';
+    userData.email = payload.email;
 
     // Find the admission semester:
     const studentAdmissionSemester = await AcademicSemester.findById(
@@ -67,20 +68,15 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
   }
 };
 
-const createFacultyIntoBD = async (
-  password: string,
-  payload: TAcademicFaculty,
-) => {
-
+const createFacultyIntoBD = async (password: string, payload: TFaculty) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const userData: Partial<TUser> = {
-      password: password || (config.default_password as string),
-      role: 'faculty',
-    };
-
+    const userData: Partial<TUser> = {};
+    userData.password = password || (config.default_password as string);
+    userData.role = 'faculty';
+    userData.email = payload.email;
     // create faculty id:
     userData.id = await generateFacultyId();
 
@@ -114,11 +110,10 @@ const createAdminIntoBD = async (password: string, payload: TAdmin) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const userData: Partial<TUser> = {
-      password: password || (config.default_password as string),
-      role: 'admin',
-    };
-
+    const userData: Partial<TUser> = {};
+    userData.password = password || (config.default_password as string);
+    userData.role = 'admin';
+    userData.email = payload.email;
     userData.id = await generateAdmin();
 
     const newUser = await User.create([userData], { session });

@@ -115,7 +115,6 @@ const changePassword = async (
 };
 
 const refreshToken = async (token: string) => {
-
   if (!token) {
     throw new AppError(status.UNAUTHORIZED, 'you are not authorized');
   }
@@ -172,8 +171,44 @@ const refreshToken = async (token: string) => {
   };
 };
 
+//forget password:
+const forgetPassword = async (id: string) => {
+  const isUserExist = await User.isUserExistByCustomId(id);
+
+  if (!isUserExist) {
+    throw new AppError(status.NOT_FOUND, 'user not found');
+  }
+
+  const isDeleted = isUserExist?.isDeleted;
+  if (isDeleted === true) {
+    throw new AppError(status.FORBIDDEN, 'user is deleted');
+  }
+  const userStatus = isUserExist?.status;
+
+  if (userStatus === 'blocked') {
+    throw new AppError(status.FORBIDDEN, 'user is blocked');
+  }
+
+  //generate access token:
+  const jwtPayload = {
+    userId: isUserExist?.id,
+    role: isUserExist?.role,
+  };
+
+  //generate access token:
+  const resetToken = createToken(
+    jwtPayload,
+    config.access_token_secret as string,
+    config.jwt_access_token_expiration as string,
+  );
+
+  const resetLink = `https://localhost:${config.client_site_port}?id=${id}&token=${resetToken}`;
+  console.log(resetLink);
+};
+
 export const AuthService = {
   loginUser,
   changePassword,
   refreshToken,
+  forgetPassword,
 };
