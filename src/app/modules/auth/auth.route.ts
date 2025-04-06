@@ -4,6 +4,7 @@ import {
   changePasswordValidation,
   forgetPasswordValidation,
   refreshTokenValidation,
+  resetPasswordValidation,
 } from './auth.validation';
 import { AuthController } from './auth.controller';
 import { auth } from '../../middlewares/auth';
@@ -29,6 +30,12 @@ router.post(
   '/forgot-password',
   validationRequest(forgetPasswordValidation),
   AuthController.forgetPassword,
+);
+
+router.post(
+  '/reset-password',
+  validationRequest(resetPasswordValidation),
+  AuthController.resetPassword,
 );
 
 export const AuthRoute = router;

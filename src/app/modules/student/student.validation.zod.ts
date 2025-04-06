@@ -30,7 +30,7 @@ const createLocalGuardianSchema = z.object({
 
 export const createStudentValidationSchema = z.object({
   body: z.object({
-    password: z.string().max(20),
+    password: z.string().max(20).optional(),
     student: z.object({
       name: createUserNameSchema,
       gender: z.enum(['male', 'female', 'other']),
@@ -46,14 +46,14 @@ export const createStudentValidationSchema = z.object({
       guardian: createGuardianSchema,
       localGuardian: createLocalGuardianSchema,
       profileImage: z.string().optional(),
-      academicDepartment:z.string(),
+      academicDepartment: z.string(),
       admissionSemester: z.string(),
       isDeleted: z.boolean(),
     }),
   }),
 });
 
-//for update 
+//for update
 
 const updateUserNameSchema = z.object({
   firstName: z
@@ -94,7 +94,9 @@ export const updateStudentValidationSchema = z.object({
       email: z.string().email().optional(),
       contactNo: z.string().optional(),
       emergencyContactNo: z.string().optional(),
-      bloodGroup: z.enum(['A+', 'A-', 'B+', 'B-', 'AB-', 'AB+', 'O+', 'O-']).optional(),
+      bloodGroup: z
+        .enum(['A+', 'A-', 'B+', 'B-', 'AB-', 'AB+', 'O+', 'O-'])
+        .optional(),
       presentAddress: z.string().optional(),
       permanentAddress: z.string().optional(),
       guardian: updateGuardianSchema.optional(),

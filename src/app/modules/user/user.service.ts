@@ -8,13 +8,13 @@ import { User } from './user.model';
 import { generateStudentId } from './user-utils/generateStudentId';
 import AppError from '../../errors/AppError';
 import status from 'http-status';
-import { TAcademicFaculty } from '../academic-faculty/academicFaculty.interface';
 import { generateFacultyId } from './user-utils/generateFacultyId';
 import { TAdmin } from '../admin/admin.interface';
-import { generateAdmin } from '../admin/admin-utils/generateAdminId';
+import { generateAdmin } from './user-utils/generateAdminId';
 import { Admin } from '../admin/admin.model';
 import { Faculty } from '../faculties/faculties.model';
 import { TFaculty } from '../faculties/faculties.interface';
+import { JwtPayload } from 'jsonwebtoken';
 
 const createStudentIntoDB = async (password: string, payload: TStudent) => {
   const session = await mongoose.startSession(); // Start transaction
@@ -138,10 +138,38 @@ const createAdminIntoBD = async (password: string, payload: TAdmin) => {
   }
 };
 
+const getMeFromDB = async (user: JwtPayload) => {
+  if (!user) {
+    throw new AppError(status.UNAUTHORIZED, 'user not found');
+  }
+
+  let result = null;
+  if (user.role === 'admin') {
+    result = await Admin.findOne({ id: user.userId }).populate('user');
+  }
+  if (user.role === 'faculty') {
+    result = await Faculty.findOne({ id: user.userId }).populate('user');
+  }
+  if (user.role === 'student') {
+    result = await Student.findOne({ id: user.userId }).populate('user');
+  }
+
+  return result;
+};
+
+const changeStatusIntoDB = async (id: string, payload: Partial<TUser>) => {
+  const result = await User.findByIdAndUpdate(id,{status:payload}, {
+    new: true,
+  });
+  return result;
+};
+
 export const UserServices = {
   createStudentIntoDB,
   createFacultyIntoBD,
   createAdminIntoBD,
+  getMeFromDB,
+  changeStatusIntoDB,
 };
 
 //how to create transaction:

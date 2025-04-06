@@ -4,10 +4,10 @@ import { TUser } from '../user/user.interface';
 import { User } from '../user/user.model';
 import { JwtPayload } from 'jsonwebtoken';
 import config from '../../config';
-import { TChangePassword } from './auth.interface';
+import {TChangePassword, TResetPassword } from './auth.interface';
 import bcrypt from 'bcrypt';
-import { createToken } from './auth.utils';
-import Jwt from 'jsonwebtoken';
+import { createToken, verifyToken } from './auth.utils';
+import { sendMail } from '../../../utils/sendMail';
 
 const loginUser = async (payload: TUser) => {
   const isUserExist = await User.isUserExistByCustomId(payload?.id);
@@ -99,7 +99,7 @@ const changePassword = async (
     Number(config.bcrypt_salt_round),
   );
 
-  const result = await User.findOneAndUpdate(
+  await User.findOneAndUpdate(
     {
       id: userId,
       role: role,
@@ -120,10 +120,7 @@ const refreshToken = async (token: string) => {
   }
 
   //verified token with decode:
-  const decoded = Jwt.verify(
-    token,
-    config.refresh_token_secret as string,
-  ) as JwtPayload;
+  const decoded = verifyToken(token, config.refresh_token_secret as string);
 
   //verification of role and authorization:
   const { userId, iat } = decoded;
@@ -171,7 +168,6 @@ const refreshToken = async (token: string) => {
   };
 };
 
-//forget password:
 const forgetPassword = async (id: string) => {
   const isUserExist = await User.isUserExistByCustomId(id);
 
@@ -202,8 +198,57 @@ const forgetPassword = async (id: string) => {
     config.jwt_access_token_expiration as string,
   );
 
-  const resetLink = `https://localhost:${config.client_site_port}?id=${id}&token=${resetToken}`;
-  console.log(resetLink);
+  const resetLink = `${config.reset_pass_ui_link}?id=${id}&token=${resetToken}`;
+
+  sendMail(isUserExist.email, resetLink);
+};
+
+const resetPassword = async (payload: TResetPassword, token: string) => {
+  const isUserExist = await User.isUserExistByCustomId(payload.id);
+  if (!isUserExist) {
+    throw new AppError(status.NOT_FOUND, 'user not found');
+  }
+
+  const isDeleted = isUserExist?.isDeleted;
+  if (isDeleted === true) {
+    throw new AppError(status.FORBIDDEN, 'user is deleted');
+  }
+  const userStatus = isUserExist?.status;
+
+  if (userStatus === 'blocked') {
+    throw new AppError(status.FORBIDDEN, 'user is blocked');
+  }
+
+  if (!token) {
+    throw new AppError(status.UNAUTHORIZED, 'you are not authorized');
+  }
+
+  //verified token with decode:
+  const decoded = verifyToken(token, config.access_token_secret as string);
+
+  if (payload.id !== decoded.userId) {
+    throw new AppError(status.FORBIDDEN, 'you are forbidden');
+  }
+
+  //encrypted new password:
+  const newHasPassword = await bcrypt.hash(
+    payload.newPassword,
+    Number(config.bcrypt_salt_round),
+  );
+
+  await User.findOneAndUpdate(
+    {
+      id: decoded.userId,
+      role: decoded.role,
+    },
+    {
+      password: newHasPassword,
+      needsPasswordChange: false,
+      passwordChangeAt: new Date(),
+    },
+  );
+
+  return null;
 };
 
 export const AuthService = {
@@ -211,4 +256,5 @@ export const AuthService = {
   changePassword,
   refreshToken,
   forgetPassword,
+  resetPassword,
 };

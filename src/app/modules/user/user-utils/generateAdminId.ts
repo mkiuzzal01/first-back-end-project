@@ -1,6 +1,6 @@
-import { User } from "../../user/user.model";
+import { User } from "../user.model";
 
-// Step 1: Find the last faculty ID from the database
+// Step 1: Find the last admin ID from the database
 const findLastAdmin = async (): Promise<number> => {
   const lastAdmin = await User.findOne(
     { role: 'admin' }, 
@@ -12,7 +12,7 @@ const findLastAdmin = async (): Promise<number> => {
   return lastAdmin?.id ? parseInt(lastAdmin.id.split('-')[1]) : 0;
 };
 
-// Step 3: Generate a new unique faculty ID
+// Step 3: Generate a new unique admin ID
 export const generateAdmin = async (): Promise<string> => {
   const lastAdminId = await findLastAdmin();
 
