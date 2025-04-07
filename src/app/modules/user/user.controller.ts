@@ -6,9 +6,11 @@ import catchAsync from '../../../utils/catchAsync';
 
 const createStudent: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
+    const file = req.file;
     const { password, student: studentData } = req.body;
 
     const result = await UserServices.createStudentIntoDB(
+      file,
       password,
       studentData,
     );

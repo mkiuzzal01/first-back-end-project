@@ -15,8 +15,13 @@ import { Admin } from '../admin/admin.model';
 import { Faculty } from '../faculties/faculties.model';
 import { TFaculty } from '../faculties/faculties.interface';
 import { JwtPayload } from 'jsonwebtoken';
+import { sendImageToCloudinary } from '../../../utils/sendImageToCloudiary';
 
-const createStudentIntoDB = async (password: string, payload: TStudent) => {
+const createStudentIntoDB = async (
+  file: any,
+  password: string,
+  payload: TStudent,
+) => {
   const session = await mongoose.startSession(); // Start transaction
   session.startTransaction();
 
@@ -45,9 +50,15 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
       throw new AppError(status.BAD_REQUEST, 'Failed to create user');
     }
 
+    //upload image to cloudinary:
+    const { path } = file;
+    const imageName = `${userData.id}${payload.name.firstName}`;
+    const { secure_url }: any = await sendImageToCloudinary(imageName, path);
+
     // Assign user ID to student payload
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id;
+    payload.profileImage = secure_url;
 
     // Create Student
     const newStudent = await Student.create([payload], { session });
@@ -158,9 +169,13 @@ const getMeFromDB = async (user: JwtPayload) => {
 };
 
 const changeStatusIntoDB = async (id: string, payload: Partial<TUser>) => {
-  const result = await User.findByIdAndUpdate(id,{status:payload}, {
-    new: true,
-  });
+  const result = await User.findByIdAndUpdate(
+    id,
+    { status: payload },
+    {
+      new: true,
+    },
+  );
   return result;
 };
 

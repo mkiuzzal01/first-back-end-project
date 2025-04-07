@@ -13,7 +13,10 @@ export default {
   refresh_token_secret: process.env.REFRESH_TOKEN,
   jwt_access_token_expiration: process.env.JWT_ACCESS_EXPIRES_IN,
   jwt_refresh_token_expiration: process.env.JWT_REFRESH_EXPIRES_IN,
-  client_site_port:process.env.CLIENT_SITE_PORT,
+  client_site_port: process.env.CLIENT_SITE_PORT,
   jwt_forget_password_expiration: process.env.JWT_FORGET_PASSWORD_EXPIRES_IN,
-  reset_pass_ui_link:process.env.RESET_PASS_UI_LINK,
+  reset_pass_ui_link: process.env.RESET_PASS_UI_LINK,
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret_key: process.env.API_SECRET_KEY,
 };
