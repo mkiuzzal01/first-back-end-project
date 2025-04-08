@@ -59,11 +59,11 @@ const enrolledCourseSchema = new Schema<TEnrolledCourse>({
   },
   faculty: {
     type: Schema.Types.ObjectId,
-    ref: 'Faculty',
+    ref: 'faculties',
   },
   isEnrolled: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   courseMarks: {
     type: courseMarksSchema,
