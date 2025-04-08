@@ -79,7 +79,11 @@ const createStudentIntoDB = async (
   }
 };
 
-const createFacultyIntoBD = async (password: string, payload: TFaculty) => {
+const createFacultyIntoBD = async (
+  file: any,
+  password: string,
+  payload: TFaculty,
+) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -97,9 +101,16 @@ const createFacultyIntoBD = async (password: string, payload: TFaculty) => {
     if (!newUser.length) {
       throw new AppError(status.BAD_REQUEST, 'Failed to create user');
     }
+
+    //upload image to cloudinary:
+    const { path } = file;
+    const imageName = `${userData.id}${payload.name.firstName}`;
+    const { secure_url }: any = await sendImageToCloudinary(imageName, path);
+
     // Assign user ID to faculty payload
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id;
+    payload.profileImage = secure_url;
 
     // Create Faculty
     const newFaculty = await Faculty.create([payload], { session });
@@ -117,7 +128,10 @@ const createFacultyIntoBD = async (password: string, payload: TFaculty) => {
   }
 };
 
-const createAdminIntoBD = async (password: string, payload: TAdmin) => {
+const createAdminIntoBD = async (
+  password: string,
+  payload: TAdmin,
+) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
