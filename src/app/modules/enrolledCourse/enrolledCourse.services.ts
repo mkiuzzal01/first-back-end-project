@@ -1,90 +1,215 @@
 import status from 'http-status';
 import AppError from '../../errors/AppError';
 import { OfferCourse } from '../offer-course/offerCourse.model';
-import { TEnrolledCourse } from './enrolledCourse.interface';
 import { EnrolledCourse } from './enrolledCourse.model';
 import { Student } from '../student/student.model';
 import mongoose from 'mongoose';
+import { SemesterRegistration } from '../semester-registration/semesterRegistration.model';
+import { Course } from '../course/course.model';
+import { TEnrolledCourse } from './enrolledCourse.interface';
+import { Faculty } from '../faculties/faculties.model';
 
 const createEnrolledCourseIntoDB = async (
   userId: string,
-  offeredCourse: Partial<TEnrolledCourse>,
-) => {
+  offeredCourseId: string,
+): Promise<void> => {
   const session = await mongoose.startSession();
-
-  const isExistCourse = await OfferCourse.findById(offeredCourse);
-
-  if (!isExistCourse) {
-    throw new AppError(status.BAD_REQUEST, 'offered course not found');
-  }
-
-  if (isExistCourse.maxCapacity <= 0) {
-    throw new AppError(status.BAD_REQUEST, 'the room is full');
-  }
-
-  const student = await Student.findOne({ id: userId });
-
-  if (!student) {
-    throw new AppError(status.BAD_REQUEST, 'student not found');
-  }
-
-  const isAlreadyCourseEnrolled = await EnrolledCourse.findOne({
-    semesterRegistration: isExistCourse?.semesterRegistration,
-    offeredCourse,
-    student: student._id,
-  });
-
-  if (isAlreadyCourseEnrolled) {
-    throw new AppError(
-      status.BAD_REQUEST,
-      'you are already enrolled the course',
-    );
-  }
-
-  //create  new  enrolled course:
   try {
     session.startTransaction();
 
-    const result = await EnrolledCourse.create(
+    // 1. Validate offered course
+    const offeredCourse =
+      await OfferCourse.findById(offeredCourseId).session(session);
+
+    if (!offeredCourse) {
+      throw new AppError(status.BAD_REQUEST, 'Offered course not found');
+    }
+
+    if (offeredCourse.maxCapacity <= 0) {
+      throw new AppError(status.BAD_REQUEST, 'The room is full');
+    }
+
+    const course = await Course.findById(offeredCourse.course).session(session);
+
+    // 2. Validate student
+    const student = await Student.findOne({ id: userId }, { _id: 1 }).session(
+      session,
+    );
+    if (!student?._id) {
+      throw new AppError(status.BAD_REQUEST, 'Student not found');
+    }
+
+    // 3. Check if already enrolled
+    const isAlreadyEnrolled = await EnrolledCourse.findOne({
+      semesterRegistration: offeredCourse.semesterRegistration,
+      offeredCourse: offeredCourse._id,
+      student: student._id,
+    }).session(session);
+
+    if (isAlreadyEnrolled) {
+      throw new AppError(
+        status.BAD_REQUEST,
+        'You are already enrolled in this course',
+      );
+    }
+
+    // 4. Check credit limit
+    const semesterReg = await SemesterRegistration.findById(
+      offeredCourse.semesterRegistration,
+    )
+      .select('maxCredit')
+      .session(session);
+
+    if (!semesterReg) {
+      throw new AppError(status.BAD_REQUEST, 'Semester registration not found');
+    }
+
+    const enrolledCourses = await EnrolledCourse.aggregate([
+      {
+        $match: {
+          semesterRegistration: offeredCourse.semesterRegistration,
+          student: student._id,
+        },
+      },
+      {
+        $lookup: {
+          from: 'courses',
+          localField: 'course',
+          foreignField: '_id',
+          as: 'courseDetails',
+        },
+      },
+      { $unwind: '$courseDetails' },
+      {
+        $group: {
+          _id: null,
+          totalCredits: { $sum: '$courseDetails.credit' },
+        },
+      },
+    ]).session(session);
+
+    const currentCredits = enrolledCourses[0]?.totalCredits || 0;
+
+    if (currentCredits + course?.credit > semesterReg.maxCredit) {
+      throw new AppError(
+        status.CONFLICT,
+        'You have exceeded the maximum allowed credits',
+      );
+    }
+
+    // 5. Enroll course
+    const enrollment = await EnrolledCourse.create(
       [
         {
-          semesterRegistration: isExistCourse.semesterRegistration,
-          academicSemester: isExistCourse.academicSemester,
-          academicFaculty: isExistCourse.academicFaculty,
-          academicDepartment: isExistCourse.academicDepartment,
-          offeredCourse: offeredCourse,
-          course: isExistCourse.course,
+          semesterRegistration: offeredCourse.semesterRegistration,
+          academicSemester: offeredCourse.academicSemester,
+          academicFaculty: offeredCourse.academicFaculty,
+          academicDepartment: offeredCourse.academicDepartment,
+          offeredCourse: offeredCourse._id,
+          course: offeredCourse.course,
           student: student._id,
-          faculty: isExistCourse.faculty,
+          faculty: offeredCourse.faculty,
           isEnrolled: true,
         },
       ],
       { session },
     );
 
-    if (!result) {
-      throw new AppError(status.BAD_REQUEST, 'failed to enroll in this course');
+    if (!enrollment.length) {
+      throw new AppError(status.BAD_REQUEST, 'Failed to enroll in the course');
     }
 
-    const maxCapacity = isExistCourse.maxCapacity;
-
+    // 6. Decrease max capacity
     await OfferCourse.findByIdAndUpdate(
-      offeredCourse,
-
-      {
-        maxCapacity: maxCapacity - 1,
-      },
+      offeredCourse._id,
+      { $inc: { maxCapacity: -1 } },
+      { session },
     );
 
     await session.commitTransaction();
-    await session.endSession();
   } catch (error: any) {
     await session.abortTransaction();
+    throw new AppError(
+      status.INTERNAL_SERVER_ERROR,
+      error?.message || 'Enrollment process failed',
+    );
+  } finally {
     await session.endSession();
-    throw new Error(error);
   }
 };
 
+const updateEnrolledCourseMarksIntoDB = async (
+  facultyId: string,
+  payload: Partial<TEnrolledCourse>,
+) => {
+  const { semesterRegistration, offeredCourse, student, courseMarks } = payload;
+
+  const isSemesterRegistrationExist =
+    await SemesterRegistration.findById(semesterRegistration);
+
+  if (!isSemesterRegistrationExist) {
+    throw new AppError(status.BAD_REQUEST, 'Semester registration not found');
+  }
+
+  const isOfferCourseSectionExist = await OfferCourse.findById(offeredCourse);
+
+  if (!isOfferCourseSectionExist) {
+    throw new AppError(status.BAD_REQUEST, 'Offered course not found');
+  }
+
+  const isStudentExist = await Student.findById(student);
+
+  if (!isStudentExist) {
+    throw new AppError(status.BAD_REQUEST, 'Student not found');
+  }
+
+  const isFacultyExist = await Faculty.findOne({ id: facultyId }, { _id: 1 });
+
+  if (!isFacultyExist) {
+    throw new AppError(status.FORBIDDEN, 'Faculty not found');
+  }
+
+  const isCourseBelongToFaculty = await EnrolledCourse.findOne({
+    semesterRegistration,
+    offeredCourse,
+    student,
+    faculty: isFacultyExist,
+  });
+
+  //update marks:
+  const modifiedData: Record<string, unknown> = {
+    ...courseMarks,
+  };
+
+  if (courseMarks && Object.keys(courseMarks).length) {
+    for (const [key, value] of Object.entries(courseMarks)) {
+      modifiedData[`courseMarks.${key}`] = value;
+    }
+  }
+
+  const result = await EnrolledCourse.findOneAndUpdate(
+    isCourseBelongToFaculty?._id,
+    modifiedData,
+    {
+      new: true,
+      reValidate: true,
+    },
+  );
+
+  if (courseMarks?.finalTerm) {
+    //calculate total marks:
+    const { classTest1, midTerm, classTest2, finalTerm } = isCourseBelongToFaculty?.courseMarks;
+
+    const totalMarks =
+      Math.ceil(classTest1 * 0.1) +
+      Math.ceil(midTerm * 0.3) +
+      Math.ceil(classTest2 * 0.1) +
+      Math.ceil(finalTerm * 0.5);
+  }
+
+  return result;
+};
 export const enrolledCourseService = {
   createEnrolledCourseIntoDB,
+  updateEnrolledCourseMarksIntoDB,
 };
