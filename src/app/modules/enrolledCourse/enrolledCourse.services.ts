@@ -6,9 +6,22 @@ import { Student } from '../student/student.model';
 import mongoose from 'mongoose';
 import { SemesterRegistration } from '../semester-registration/semesterRegistration.model';
 import { Course } from '../course/course.model';
-import { TEnrolledCourse } from './enrolledCourse.interface';
+import {
+  TEnrolledCourse,
+  TEnrolledCourseMarks,
+} from './enrolledCourse.interface';
 import { Faculty } from '../faculties/faculties.model';
+import { calculateGradeAndPoint } from './enrolledCourse.utils';
 
+const getAllEnrolledCourseFromDB = async () => {
+  const result = await EnrolledCourse.find();
+  return result;
+};
+
+const getSingleEnrolledCourseFromDB = async (id: string) => {
+  const result = await EnrolledCourse.findById(id);
+  return result;
+};
 const createEnrolledCourseIntoDB = async (
   userId: string,
   offeredCourseId: string,
@@ -181,6 +194,20 @@ const updateEnrolledCourseMarksIntoDB = async (
     ...courseMarks,
   };
 
+  //calculate total marks and update:
+  if (courseMarks?.finalTerm && isCourseBelongToFaculty) {
+    const { classTest1, midTerm, classTest2, finalTerm }: TEnrolledCourseMarks =
+      isCourseBelongToFaculty.courseMarks;
+
+    const totalMarks = classTest1 + midTerm + classTest2 + finalTerm;
+
+    const result = calculateGradeAndPoint(totalMarks);
+
+    modifiedData.grade = result.grade;
+    modifiedData.gradePoints = result.gradePoints;
+    modifiedData.isCompleted = true;
+  }
+
   if (courseMarks && Object.keys(courseMarks).length) {
     for (const [key, value] of Object.entries(courseMarks)) {
       modifiedData[`courseMarks.${key}`] = value;
@@ -196,20 +223,11 @@ const updateEnrolledCourseMarksIntoDB = async (
     },
   );
 
-  if (courseMarks?.finalTerm) {
-    //calculate total marks:
-    const { classTest1, midTerm, classTest2, finalTerm } = isCourseBelongToFaculty?.courseMarks;
-
-    const totalMarks =
-      Math.ceil(classTest1 * 0.1) +
-      Math.ceil(midTerm * 0.3) +
-      Math.ceil(classTest2 * 0.1) +
-      Math.ceil(finalTerm * 0.5);
-  }
-
   return result;
 };
 export const enrolledCourseService = {
+  getAllEnrolledCourseFromDB,
+  getSingleEnrolledCourseFromDB,
   createEnrolledCourseIntoDB,
   updateEnrolledCourseMarksIntoDB,
 };

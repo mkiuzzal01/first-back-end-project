@@ -24,7 +24,7 @@ const courseMarksSchema = new Schema<TEnrolledCourseMarks>({
   finalTerm: {
     type: Number,
     min:0,
-    max:40,
+    max:50,
     default: 0,
   },
 });

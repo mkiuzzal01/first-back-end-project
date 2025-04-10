@@ -11,6 +11,18 @@ import {
 const router = express.Router();
 
 // all routes:
+router.get(
+  '/all-enrolled-course',
+  auth(USER_ROLE.admin),
+  EnrolledCourseController.getAllEnrolledCourse,
+);
+
+router.get(
+  '/:id',
+  auth(USER_ROLE.admin),
+  EnrolledCourseController.getSingleEnrolledCourse,
+);
+
 router.post(
   '/create-enrolled-course',
   auth(USER_ROLE.student),
@@ -24,6 +36,5 @@ router.patch(
   validationRequest(updateEnrolledCourseMarksValidationSchema),
   EnrolledCourseController.updateEnrolledCourseMarks,
 );
-
 
 export const EnrolledCourseRoutes = router;
