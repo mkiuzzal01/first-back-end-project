@@ -124,7 +124,7 @@ StudentSchema.virtual('fullName').get(function () {
 });
 
 // query middleware
-StudentSchema.pre('findOne', function (next) {
+StudentSchema.pre('find', function (next) {
   this.find({ isDeleted: { $ne: true } });
   next();
 });

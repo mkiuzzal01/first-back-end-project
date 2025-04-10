@@ -2,6 +2,7 @@ import { Server } from 'node:http';
 import app from './app';
 import config from './app/config';
 import mongoose from 'mongoose';
+import seedSuperAdmin from './app/DB';
 
 let server: Server;
 async function main() {
@@ -10,6 +11,10 @@ async function main() {
       console.log(`Example app listening on port ${config.port}`);
     });
     await mongoose.connect(config.database_url as string);
+
+    //this is for seed super admin:
+    seedSuperAdmin();
+    
   } catch (error) {
     console.log('this error from server:', error);
   }

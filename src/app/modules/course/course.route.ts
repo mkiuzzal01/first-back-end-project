@@ -13,7 +13,7 @@ const router = express.Router();
 
 // all routes:
 router.get(
-  '/',
+  '/all-courses',
   auth(USER_ROLE.admin, USER_ROLE.faculty, USER_ROLE.student),
   CourseController.getAllCourses,
 );
