@@ -1,7 +1,7 @@
 import QueryBuilder from '../../builder/QueryBuilder';
 import { facultySearchableFields } from './faculties.constant';
 import { TFaculty } from './faculties.interface';
-import { Faculty } from './faculties.model';
+import { Faculties } from './faculties.model';
 
 const updateFacultyIntoBD = async (id: string, payload: Partial<TFaculty>) => {
   const { name, ...remaining } = payload;
@@ -14,7 +14,7 @@ const updateFacultyIntoBD = async (id: string, payload: Partial<TFaculty>) => {
       modifiedUpdateData[`name.${key}`] = value;
     }
   }
-  const result = await Faculty.findByIdAndUpdate(id, modifiedUpdateData, {
+  const result = await Faculties.findByIdAndUpdate(id, modifiedUpdateData, {
     new: true,
     runValidators: true,
   });
@@ -23,7 +23,7 @@ const updateFacultyIntoBD = async (id: string, payload: Partial<TFaculty>) => {
 };
 
 const getAllFacultyFromDB = async (query: Record<string, unknown>) => {
-  const findFaculty = Faculty.find()
+  const findFaculty = Faculties.find()
     .populate('user')
     .populate({
       path: 'academicDepartment',
@@ -45,7 +45,7 @@ const getAllFacultyFromDB = async (query: Record<string, unknown>) => {
 
 const getSingleFacultyFromDB = async (id: string) => {
   console.log(id);
-  const result = await Faculty.findById(id)
+  const result = await Faculties.findById(id)
     .populate('user')
     .populate({
       path: 'academicDepartment',
@@ -56,8 +56,9 @@ const getSingleFacultyFromDB = async (id: string) => {
   return result;
 };
 
-const deleteFacultyIntoDB = (id: string) => {
-  // your logic to delete faculty goes here
+const deleteFacultyIntoDB = async (id: string) => {
+  const result = await Faculties.findByIdAndDelete(id);
+  return result;
 };
 
 export const facultyService = {

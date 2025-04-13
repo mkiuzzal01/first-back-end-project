@@ -23,7 +23,7 @@ router.get(
   CourseController.getAllCourses,
 );
 router.get(
-  '/:id',
+  '/get-single-course/:id',
   auth(
     USER_ROLE.superAdmin,
     USER_ROLE.admin,
@@ -32,6 +32,18 @@ router.get(
   ),
   CourseController.getSingleCourse,
 );
+
+router.get(
+  '/include-faculties/:id',
+  auth(
+    USER_ROLE.superAdmin,
+    USER_ROLE.admin,
+    USER_ROLE.faculty,
+    USER_ROLE.student,
+  ),
+  CourseController.getIncludedFacultiesWithCourses,
+);
+
 router.post(
   '/create-course',
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
@@ -40,25 +52,25 @@ router.post(
 );
 
 router.patch(
-  '/:id',
+  '/update-course/:id',
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   validationRequest(updateCreateCourseValidation),
   CourseController.updateCourse,
 );
 
 router.delete(
-  '/:id',
+  '/delete-course/:id',
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   CourseController.deleteCourse,
 );
 router.put(
-  '/:courseId/assign-faculty',
+  '/assign-faculty/:courseId',
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   validationRequest(courseFacultyValidation),
   CourseController.assignCourseFaculty,
 );
 router.delete(
-  '/:courseId/remove-faculty',
+  '/remove-faculty/:courseId',
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   validationRequest(courseFacultyValidation),
   CourseController.removeCourseFaculty,

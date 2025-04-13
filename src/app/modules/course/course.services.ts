@@ -1,10 +1,11 @@
 import mongoose from 'mongoose';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { courseSearchableField } from './course.constant';
-import { TCourse } from './course.interface';
+import { TCourse, TCourseFaculty } from './course.interface';
 import { Course, CourseFaculty } from './course.model';
 import AppError from '../../errors/AppError';
 import status from 'http-status';
+import { Faculties } from '../faculties/faculties.model';
 
 const createCourseIntoDB = async (payload: TCourse) => {
   const result = await Course.create(payload);
@@ -135,8 +136,22 @@ const deleteCourseFromDB = async (id: string) => {
 
 const assignCourseFacultyIntoDB = async (
   id: string,
-  payload: Partial<TCourse>,
+  payload: Array<TCourseFaculty>,
 ) => {
+
+  const isExistCourse = await Course.findById(id);
+  if (!isExistCourse) {
+    throw new AppError(status.NOT_FOUND, 'Course not found');
+  }
+
+  const isExistFaculty = await Faculties.find({
+    _id: { $in: payload },
+  });
+
+  if(isExistFaculty.length !== payload.length){
+    throw new AppError(status.NOT_FOUND, 'Faculty not found for this course');
+  }
+
   const result = await CourseFaculty.findByIdAndUpdate(
     id,
     {
@@ -168,6 +183,12 @@ const removeCourseFacultyIntoDB = async (
   return result;
 };
 
+const getIncludedFacultiesWithCoursesFromDB = async (id: string) => {
+
+  const result = await CourseFaculty.findOne({course:id}).populate('faculties');
+  return result;
+}
+
 export const CourseService = {
   createCourseIntoDB,
   updateCourseIntoDB,
@@ -176,4 +197,5 @@ export const CourseService = {
   deleteCourseFromDB,
   assignCourseFacultyIntoDB,
   removeCourseFacultyIntoDB,
+  getIncludedFacultiesWithCoursesFromDB
 };

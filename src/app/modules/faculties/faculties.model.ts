@@ -1,4 +1,4 @@
-import { model, Schema, Types } from 'mongoose';
+import { model, Schema } from 'mongoose';
 import { TFaculty } from './faculties.interface';
 
 const facultySchema = new Schema<TFaculty>(
@@ -62,14 +62,11 @@ const facultySchema = new Schema<TFaculty>(
     },
     academicDepartment: {
       type: Schema.Types.ObjectId,
-      unique:true,
       required: true,
       ref: 'AcademicDepartment',
     },
     academicFaculty: {
       type: Schema.Types.ObjectId,
-      unique:true,
-      required: true,
       ref: 'AcademicFaculty',
     },
     isDeleted: {
@@ -80,4 +77,4 @@ const facultySchema = new Schema<TFaculty>(
   { timestamps: true },
 );
 
-export const Faculty = model<TFaculty>('Faculty', facultySchema);
+export const Faculties = model<TFaculty>('Faculties', facultySchema);

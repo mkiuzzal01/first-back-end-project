@@ -52,7 +52,7 @@ const updateSemesterRegistrationIntoDB = async (
   payload: Partial<TSemesterRegistration>,
 ) => {
   // check is semester if have in the database
-  const isRequestedSemesterExists = await SemesterRegistration. (id);
+  const isRequestedSemesterExists = await SemesterRegistration.findById(id);
 
   if (!isRequestedSemesterExists) {
     throw new AppError(status.NOT_FOUND, 'Requested semester not found');

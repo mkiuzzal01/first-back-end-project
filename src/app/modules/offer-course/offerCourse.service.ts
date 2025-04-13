@@ -5,7 +5,7 @@ import { TOfferCourse } from './offerCourse.interface';
 import { OfferCourse } from './offerCourse.model';
 import { AcademicDepartment } from '../academic-department/academicDepartment.model';
 import { Course } from '../course/course.model';
-import { Faculty } from '../faculties/faculties.model';
+import { Faculties } from '../faculties/faculties.model';
 import { hasTimeConflict } from './offerCourse.utils';
 import mongoose from 'mongoose';
 
@@ -39,7 +39,7 @@ const createOfferCourseIntoDB = async (payload: TOfferCourse) => {
     throw new AppError(status.NOT_FOUND, 'Course not found');
   }
 
-  const isFaculty = await Faculty.findById(faculty);
+  const isFaculty = await Faculties.findById(faculty);
   if (!isFaculty) {
     throw new AppError(status.NOT_FOUND, 'Faculty not found');
   }
@@ -101,7 +101,7 @@ const updateOfferCourseIntoDB = async (id: string, payload: TOfferCourse) => {
     throw new AppError(status.NOT_FOUND, 'Offer course not found');
   }
 
-  const isFaculty = await Faculty.findById(faculty);
+  const isFaculty = await Faculties.findById(faculty);
   if (!isFaculty) {
     throw new AppError(status.NOT_FOUND, 'Faculty not found');
   }
@@ -140,7 +140,7 @@ const updateOfferCourseIntoDB = async (id: string, payload: TOfferCourse) => {
 const deleteOfferCourseFromDB = async (id: string) => {
   const session = await mongoose.startSession();
   session.startTransaction();
-  
+
   try {
     const isOfferCourseExist = await OfferCourse.findById(id);
     if (!isOfferCourseExist) {
@@ -159,10 +159,15 @@ const getSingleOfferCourseFromDB = async (id: string) => {
   return result;
 };
 
+const getIncludedFacultiesWithCoursesFromDB = async (id: string) => {
+  console.log(id);
+};
+
 export const offerCoursesService = {
   createOfferCourseIntoDB,
   updateOfferCourseIntoDB,
   deleteOfferCourseFromDB,
   getAllOfferCoursesFromDB,
   getSingleOfferCourseFromDB,
+  getIncludedFacultiesWithCoursesFromDB,
 };

@@ -12,7 +12,7 @@ import { generateFacultyId } from './user-utils/generateFacultyId';
 import { TAdmin } from '../admin/admin.interface';
 import { generateAdmin } from './user-utils/generateAdminId';
 import { Admin } from '../admin/admin.model';
-import { Faculty } from '../faculties/faculties.model';
+import { Faculties } from '../faculties/faculties.model';
 import { TFaculty } from '../faculties/faculties.interface';
 import { JwtPayload } from 'jsonwebtoken';
 import { sendImageToCloudinary } from '../../../utils/sendImageToCloudiary';
@@ -104,14 +104,15 @@ const createFacultyIntoBD = async (
     userData.role = 'faculty';
     userData.email = payload.email;
 
-    const isAcademicFacultyExist = await AcademicDepartment.findById(
+    const isAcademicDepartmentExist = await AcademicDepartment.findById(
       payload.academicDepartment,
     );
 
-    if (!isAcademicFacultyExist) {
+    if (!isAcademicDepartmentExist) {
       throw new AppError(status.NOT_FOUND, 'Academic department not found');
     }
-    payload.academicFaculty = isAcademicFacultyExist?.academicFaculty;
+
+    payload.academicFaculty = isAcademicDepartmentExist?.academicFaculty;
     
     // create faculty id:
     userData.id = await generateFacultyId();
@@ -136,7 +137,7 @@ const createFacultyIntoBD = async (
     payload.user = newUser[0]._id;
 
     // Create Faculty
-    const newFaculty = await Faculty.create([payload], { session });
+    const newFaculty = await Faculties.create([payload], { session });
     if (!newFaculty.length) {
       throw new AppError(status.BAD_REQUEST, 'Failed to create faculty');
     }
@@ -205,7 +206,7 @@ const getMeFromDB = async (user: JwtPayload) => {
     result = await Admin.findOne({ id: user.userId }).populate('user');
   }
   if (user.role === 'faculty') {
-    result = await Faculty.findOne({ id: user.userId }).populate('user');
+    result = await Faculties.findOne({ id: user.userId }).populate('user');
   }
   if (user.role === 'student') {
     result = await Student.findOne({ id: user.userId }).populate('user');
