@@ -24,6 +24,7 @@ const adminSchema = new Schema<TAdmin>(
       unique: true,
       match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
     },
+    profileImage: { type: String, default: '' },
     isDeleted: {
       type: Boolean,
       default: false,

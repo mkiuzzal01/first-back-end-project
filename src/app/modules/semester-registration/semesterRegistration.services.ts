@@ -20,7 +20,7 @@ const createSemesterRegistrationIntoBD = async (
   });
 
   if (isSemesterUpcomingAndOngoing) {
-    throw new AppError(status.BAD_REQUEST, 'Cannot create semester');
+    throw new AppError(status.BAD_REQUEST, 'Semester already registered');
   }
 
   //check the academic semester are available:
@@ -52,7 +52,7 @@ const updateSemesterRegistrationIntoDB = async (
   payload: Partial<TSemesterRegistration>,
 ) => {
   // check is semester if have in the database
-  const isRequestedSemesterExists = await SemesterRegistration.findById(id);
+  const isRequestedSemesterExists = await SemesterRegistration. (id);
 
   if (!isRequestedSemesterExists) {
     throw new AppError(status.NOT_FOUND, 'Requested semester not found');

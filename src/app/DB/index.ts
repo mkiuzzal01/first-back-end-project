@@ -3,7 +3,7 @@ import { USER_ROLE } from '../modules/user/user.constant';
 import { User } from '../modules/user/user.model';
 
 const superUser = {
-  id: 'S-0001',
+  id: 'SA-0001',
   email: 'superadmin123@gmail.com',
   password: config.super_admin_pass,
   needsPasswordChange: false,
@@ -13,7 +13,7 @@ const superUser = {
 };
 
 const seedSuperAdmin = async () => {
-  const isSuperAdminExist = User.findOne({ role: USER_ROLE.superAdmin });
+  const isSuperAdminExist = await User.findOne({ role: USER_ROLE.superAdmin });
   if (!isSuperAdminExist) {
     await User.create(superUser);
   }

@@ -23,15 +23,16 @@ const createAcademicSemesterIntoDB = async (payload: TAcademicSemester) => {
 };
 
 const updateSingleAcademicDocumentIntoDB = async (
-  year: string,
-  doc: TAcademicSemester,
+  id: string,
+  payload: TAcademicSemester,
 ) => {
-  if (academicSemesterMapper[doc.name] !== doc.code) {
+  if (academicSemesterMapper[payload.name] !== payload.code) {
     throw new AppError(status.NOT_FOUND, 'Invalid Academic Semester Code');
   }
+
   const result = await AcademicSemester.findOneAndUpdate(
-    { year },
-    { $set: doc },
+    { id },
+    { $set: payload },
     { new: true, runValidators: true },
   );
   return result;

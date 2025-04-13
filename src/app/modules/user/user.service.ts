@@ -16,6 +16,7 @@ import { Faculty } from '../faculties/faculties.model';
 import { TFaculty } from '../faculties/faculties.interface';
 import { JwtPayload } from 'jsonwebtoken';
 import { sendImageToCloudinary } from '../../../utils/sendImageToCloudiary';
+import { AcademicDepartment } from '../academic-department/academicDepartment.model';
 
 const createStudentIntoDB = async (
   file: any,
@@ -40,6 +41,14 @@ const createStudentIntoDB = async (
       throw new AppError(status.NOT_FOUND, 'Admission semester not found');
     }
 
+    const isAcademicDepartmentExist = await AcademicDepartment.findById(
+      payload.academicDepartment,
+    );
+
+    if (!isAcademicDepartmentExist) {
+      throw new AppError(status.NOT_FOUND, 'Academic department not found');
+    }
+    payload.academicFaculty = isAcademicDepartmentExist?.academicFaculty;
     // Generate Student ID
     userData.id = await generateStudentId(studentAdmissionSemester);
 
@@ -50,15 +59,17 @@ const createStudentIntoDB = async (
       throw new AppError(status.BAD_REQUEST, 'Failed to create user');
     }
 
-    //upload image to cloudinary:
-    const { path } = file;
-    const imageName = `${userData.id}${payload.name.firstName}`;
-    const { secure_url }: any = await sendImageToCloudinary(imageName, path);
+    if (file) {
+      //upload image to cloudinary:
+      const { path } = file;
+      const imageName = `${userData.id}${payload.name.firstName}`;
+      const { secure_url } = await sendImageToCloudinary(imageName, path);
+      payload.profileImage = secure_url as string;
+    }
 
     // Assign user ID to student payload
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id;
-    payload.profileImage = secure_url;
 
     // Create Student
     const newStudent = await Student.create([payload], { session });
@@ -92,6 +103,16 @@ const createFacultyIntoBD = async (
     userData.password = password || (config.default_password as string);
     userData.role = 'faculty';
     userData.email = payload.email;
+
+    const isAcademicFacultyExist = await AcademicDepartment.findById(
+      payload.academicDepartment,
+    );
+
+    if (!isAcademicFacultyExist) {
+      throw new AppError(status.NOT_FOUND, 'Academic department not found');
+    }
+    payload.academicFaculty = isAcademicFacultyExist?.academicFaculty;
+    
     // create faculty id:
     userData.id = await generateFacultyId();
 
@@ -102,15 +123,17 @@ const createFacultyIntoBD = async (
       throw new AppError(status.BAD_REQUEST, 'Failed to create user');
     }
 
-    //upload image to cloudinary:
-    const { path } = file;
-    const imageName = `${userData.id}${payload.name.firstName}`;
-    const { secure_url }: any = await sendImageToCloudinary(imageName, path);
+    if (file) {
+      //upload image to cloudinary:
+      const { path } = file;
+      const imageName = `${userData.id}${payload.name.firstName}`;
+      const { secure_url } = await sendImageToCloudinary(imageName, path);
+      payload.profileImage = secure_url as string;
+    }
 
     // Assign user ID to faculty payload
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id;
-    payload.profileImage = secure_url;
 
     // Create Faculty
     const newFaculty = await Faculty.create([payload], { session });
@@ -129,6 +152,7 @@ const createFacultyIntoBD = async (
 };
 
 const createAdminIntoBD = async (
+  file: any,
   password: string,
   payload: TAdmin,
 ) => {
@@ -144,6 +168,14 @@ const createAdminIntoBD = async (
     const newUser = await User.create([userData], { session });
     if (!newUser.length) {
       throw new AppError(status.BAD_REQUEST, 'Failed to create user');
+    }
+
+    if (file) {
+      //upload image to cloudinary:
+      const { path } = file;
+      const imageName = `${userData.id}${payload.name.split(' ').join('-')}`;
+      const { secure_url } = await sendImageToCloudinary(imageName, path);
+      payload.profileImage = secure_url as string;
     }
 
     payload.id = newUser[0].id;

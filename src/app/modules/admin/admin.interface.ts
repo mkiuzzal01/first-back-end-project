@@ -5,5 +5,6 @@ export type TAdmin = {
   user: mongoose.Types.ObjectId;
   name: string;
   email: string;
+  profileImage?: string;
   isDeleted: boolean;
 };

@@ -2,6 +2,8 @@ import { TAcademicFaculty } from './academicFaculty.interface';
 import { AcademicFaculty } from './academicFaculty.model';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { academicFacultySearchableField } from './academicFaculty.constant';
+import AppError from '../../errors/AppError';
+import status from 'http-status';
 
 const getAllAcademicFacultiesFromDB = async (
   query: Record<string, unknown>,
@@ -20,6 +22,9 @@ const getAllAcademicFacultiesFromDB = async (
 
 const getSingleAcademicFacultyFromDB = async (id: string) => {
   const result = await AcademicFaculty.findById(id);
+  if (!result) {
+    throw new AppError(status.BAD_REQUEST, 'Academic Faculty not found');
+  }
   return result;
 };
 
@@ -32,10 +37,14 @@ const updateAcademicFacultyIntoDB = async (
     { $set: payload },
     { new: true, runValidators: true },
   );
+
+  if (!result) {
+    throw new AppError(status.BAD_REQUEST, 'Academic Faculty not found');
+  }
   return result;
 };
 
-const createAcademicFacultyIntoDB = async (payload:TAcademicFaculty) => {
+const createAcademicFacultyIntoDB = async (payload: TAcademicFaculty) => {
   const result = await AcademicFaculty.create(payload);
   return result;
 };
@@ -46,6 +55,9 @@ const deleteAcademicFacultyFromDB = async (id: string) => {
     { isDeleted: true },
     { new: true, runValidators: true },
   );
+  if (!result) {
+    throw new AppError(status.BAD_REQUEST, 'Academic Faculty not found');
+  }
   return result;
 };
 

@@ -44,8 +44,9 @@ const createFaculty: RequestHandler = catchAsync(
 
 const createAdmin: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
+    const file = req.file;
     const { password, admin: AdminData } = req.body;
-    const result = await UserServices.createAdminIntoBD(password, AdminData);
+    const result = await UserServices.createAdminIntoBD(file,password, AdminData);
 
     sendResponse(res, {
       statusCode: status.OK,

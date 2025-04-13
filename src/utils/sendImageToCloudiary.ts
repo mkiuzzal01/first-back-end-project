@@ -11,7 +11,11 @@ cloudinary.config({
   api_secret: config.api_secret_key,
 });
 
-export const sendImageToCloudinary = async (imageName: string, path: any) => {
+export const sendImageToCloudinary = async (
+  imageName: string,
+  path: any,
+): Promise<Record<string, unknown>> => {
+  // console.log(imageName, path);
   // Upload an image
   const uploadResult = await cloudinary.uploader
     .upload(path, {
@@ -30,7 +34,7 @@ export const sendImageToCloudinary = async (imageName: string, path: any) => {
     }
   });
 
-  return uploadResult;
+  return uploadResult as Record<string, unknown>;
 };
 
 //this is multer for save file to local folder:
