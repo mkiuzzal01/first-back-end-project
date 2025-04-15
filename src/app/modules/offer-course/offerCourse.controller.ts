@@ -6,7 +6,8 @@ import status from 'http-status';
 
 const getAllOfferCourses: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
-    const result = await offerCoursesService.getAllOfferCoursesFromDB();
+    const { query } = req;
+    const result = await offerCoursesService.getAllOfferCoursesFromDB(query);
     sendResponse(res, {
       statusCode: status.OK,
       success: true,
@@ -29,6 +30,20 @@ const getSingleOfferCourses: RequestHandler = catchAsync(
   },
 );
 
+const getMyOfferCourses: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const {userId} = req.user;
+    const query = req.query;
+    const result = await offerCoursesService.getMyOfferCoursesFromDB(userId,query);
+    sendResponse(res, {
+      statusCode: status.OK,
+      success: true,
+      message: 'My Offer Courses fetched successfully',
+      data: result,
+    })
+  },
+);
+
 const createOfferCourse: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const course = req.body;
@@ -45,11 +60,11 @@ const createOfferCourse: RequestHandler = catchAsync(
 const updateOfferCourse: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
-    const course = req.body;
+    const courseInfo = req.body;
 
     const result = await offerCoursesService.updateOfferCourseIntoDB(
       id,
-      course,
+      courseInfo,
     );
     sendResponse(res, {
       statusCode: status.OK,
@@ -75,6 +90,7 @@ const deleteOfferCourse: RequestHandler = catchAsync(
 export const offerCourseController = {
   getAllOfferCourses,
   getSingleOfferCourses,
+  getMyOfferCourses,
   createOfferCourse,
   updateOfferCourse,
   deleteOfferCourse,

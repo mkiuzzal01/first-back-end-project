@@ -19,7 +19,7 @@ router.post(
 );
 router.patch(
   '/update-offered-course/:id',
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin,USER_ROLE.student),
   validationRequest(updateOfferedCourseValidation),
   offerCourseController.updateOfferCourse,
 );
@@ -29,9 +29,15 @@ router.get(
   offerCourseController.getSingleOfferCourses,
 );
 router.get(
-  '/get-all-offered-courses',
+  '/get-all-offered-course',
   auth(USER_ROLE.superAdmin, USER_ROLE.admin,USER_ROLE.faculty),
   offerCourseController.getAllOfferCourses,
 );
+
+router.get(
+  '/get-my-offered-courses',
+  auth(USER_ROLE.student),
+  offerCourseController.getMyOfferCourses,
+)
 
 export const OfferCourseRouter = router;

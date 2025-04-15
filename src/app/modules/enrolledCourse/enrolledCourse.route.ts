@@ -18,9 +18,15 @@ router.get(
 );
 
 router.get(
-  '/:id',
+  '/single-enrolled-course/:id',
   auth(USER_ROLE.admin),
   EnrolledCourseController.getSingleEnrolledCourse,
+);
+
+router.get(
+  '/my-enrolled-course',
+  auth(USER_ROLE.student),
+  EnrolledCourseController.getMyEnrolledCourse,
 );
 
 router.post(

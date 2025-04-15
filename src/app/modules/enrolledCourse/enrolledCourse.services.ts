@@ -10,17 +10,32 @@ import {
   TEnrolledCourse,
   TEnrolledCourseMarks,
 } from './enrolledCourse.interface';
-import { Faculty } from '../faculties/faculties.model';
+import { Faculties } from '../faculties/faculties.model';
 import { calculateGradeAndPoint } from './enrolledCourse.utils';
 
 const getAllEnrolledCourseFromDB = async () => {
-  const result = await EnrolledCourse.find();
+  const result = await EnrolledCourse.find().populate('course');
   return result;
 };
 
 const getSingleEnrolledCourseFromDB = async (id: string) => {
   const result = await EnrolledCourse.findById(id);
   return result;
+};
+
+const getMyEnrolledCourseFromDB = async (
+  id: string,
+  query: Record<string, unknown>,
+) => {
+  const isStudentExist = await Student.findOne({ id });
+
+  if (!isStudentExist) {
+    throw new AppError(status.BAD_REQUEST, 'Student not found');
+  }
+
+  const enrolledCourse = await EnrolledCourse.find({ student: isStudentExist._id });
+
+  return enrolledCourse;
 };
 const createEnrolledCourseIntoDB = async (
   userId: string,
@@ -158,25 +173,26 @@ const updateEnrolledCourseMarksIntoDB = async (
   const { semesterRegistration, offeredCourse, student, courseMarks } = payload;
 
   const isSemesterRegistrationExist =
-    await SemesterRegistration.findById(semesterRegistration);
+    await SemesterRegistration.findById(semesterRegistration).select('_id');
 
   if (!isSemesterRegistrationExist) {
     throw new AppError(status.BAD_REQUEST, 'Semester registration not found');
   }
 
-  const isOfferCourseSectionExist = await OfferCourse.findById(offeredCourse);
+  const isOfferCourseSectionExist =
+    await OfferCourse.findById(offeredCourse).select('_id');
 
   if (!isOfferCourseSectionExist) {
     throw new AppError(status.BAD_REQUEST, 'Offered course not found');
   }
 
-  const isStudentExist = await Student.findById(student);
+  const isStudentExist = await Student.findById(student).select('_id');
 
   if (!isStudentExist) {
     throw new AppError(status.BAD_REQUEST, 'Student not found');
   }
 
-  const isFacultyExist = await Faculty.findOne({ id: facultyId }, { _id: 1 });
+  const isFacultyExist = await Faculties.findOne({ id: facultyId }, { _id: 1 });
 
   if (!isFacultyExist) {
     throw new AppError(status.FORBIDDEN, 'Faculty not found');
@@ -188,6 +204,13 @@ const updateEnrolledCourseMarksIntoDB = async (
     student,
     faculty: isFacultyExist,
   });
+
+  if (!isCourseBelongToFaculty) {
+    throw new AppError(
+      status.NOT_FOUND,
+      'the course does not belong to the faculty',
+    );
+  }
 
   //update marks:
   const modifiedData: Record<string, unknown> = {
@@ -225,9 +248,11 @@ const updateEnrolledCourseMarksIntoDB = async (
 
   return result;
 };
+
 export const enrolledCourseService = {
   getAllEnrolledCourseFromDB,
   getSingleEnrolledCourseFromDB,
   createEnrolledCourseIntoDB,
   updateEnrolledCourseMarksIntoDB,
+  getMyEnrolledCourseFromDB,
 };
